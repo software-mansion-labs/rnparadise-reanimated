@@ -8,11 +8,24 @@ import {
   Pressable,
   Dimensions,
 } from "react-native";
-import Animated from "react-native-reanimated";
+import Animated, {
+  Keyframe,
+  LinearTransition,
+  ZoomInLeft,
+} from "react-native-reanimated";
 import EvilIcons from "@expo/vector-icons/EvilIcons";
 import FontAwesome from "@expo/vector-icons/FontAwesome";
 
 const AnimatedPressable = Animated.createAnimatedComponent(Pressable);
+
+const stretch = new Keyframe({
+  0: {
+    width: 0,
+  },
+  100: {
+    width: 92,
+  },
+});
 
 export function Tienda() {
   const inputRef = useRef<TextInput>(null);
@@ -21,6 +34,7 @@ export function Tienda() {
   const [headerHeight, setHeaderHeight] = useState<number | undefined>(
     undefined,
   );
+  const [priceWidth, setPriceWidth] = useState<number | undefined>(undefined);
 
   const onCancel = () => {
     if (inputRef?.current) {
@@ -86,6 +100,29 @@ export function Tienda() {
           </Text>
         </AnimatedPressable>
       </View>
+      <View style={styles.skeleton}>
+        <Animated.View
+          style={[
+            styles.gradient,
+            {
+              animationName: {
+                from: {
+                  transform: [{ translateX: "-25%" }],
+                },
+                to: {
+                  transform: [{ translateX: "25%" }],
+                },
+              },
+              animationDuration: "1s",
+              animationIterationCount: "infinite",
+              animationTimingFunction: "linear",
+            },
+          ]}
+        />
+      </View>
+      <Animated.View style={[styles.line]} />
+
+      <Text style={styles.price}>$99.9</Text>
     </SafeAreaView>
   );
 }
@@ -118,9 +155,9 @@ const styles = StyleSheet.create({
     alignItems: "center",
     color: "#64748b",
     backgroundColor: "#f0f1f6",
-    height: 42,
+    height: 50,
     flex: 1,
-    borderRadius: 8,
+    borderRadius: 12,
     paddingLeft: 4,
     gap: 10,
   },
@@ -134,5 +171,36 @@ const styles = StyleSheet.create({
   buttonText: {
     color: "#3b82f6",
     fontWeight: "bold",
+  },
+  skeleton: {
+    margin: 8,
+    width: Dimensions.get("window").width - 16,
+    aspectRatio: 0.8,
+    borderCurve: "continuous",
+    borderRadius: 12,
+    overflow: "hidden",
+  },
+  gradient: {
+    flex: 1,
+    width: "300%",
+    marginHorizontal: "-100%",
+    [process.env.EXPO_OS === "web"
+      ? "backgroundImage"
+      : "experimental_backgroundImage"]:
+      "linear-gradient(100deg, #ebeff5 46%, #fafafa 50%, #ebeff5 54%)",
+  },
+  price: {
+    fontSize: 36,
+    fontWeight: "bold",
+    fontFamily: "Menlo",
+  },
+  line: {
+    position: "relative",
+    top: 20,
+    height: 6,
+    width: 92,
+    transform: [{ rotate: "-8deg" }],
+    backgroundColor: "red",
+    marginHorizontal: 8,
   },
 });
