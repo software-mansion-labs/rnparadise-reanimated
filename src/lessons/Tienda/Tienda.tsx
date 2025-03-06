@@ -10,6 +10,7 @@ import {
 } from "react-native";
 import Animated from "react-native-reanimated";
 import EvilIcons from "@expo/vector-icons/EvilIcons";
+import FontAwesome from "@expo/vector-icons/FontAwesome";
 
 const AnimatedPressable = Animated.createAnimatedComponent(Pressable);
 
@@ -17,6 +18,9 @@ export function Tienda() {
   const inputRef = useRef<TextInput>(null);
   const cancelRef = useRef<View>(null);
   const [isFocused, setFocus] = useState(false);
+  const [headerHeight, setHeaderHeight] = useState<number | undefined>(
+    undefined,
+  );
 
   const onCancel = () => {
     if (inputRef?.current) {
@@ -27,6 +31,26 @@ export function Tienda() {
 
   return (
     <SafeAreaView style={styles.container}>
+      <Animated.View
+        style={[
+          styles.header,
+          {
+            transitionProperty: ["opacity", "marginTop"],
+            transitionDuration: 200,
+            transitionTimingFunction: "ease-in-out",
+            opacity: isFocused ? 0 : 1,
+            marginTop: isFocused ? -headerHeight! : 0,
+          },
+        ]}
+        onLayout={(event) => {
+          if (headerHeight === undefined) {
+            setHeaderHeight(event.nativeEvent.layout.height);
+          }
+        }}
+      >
+        <FontAwesome name="opencart" size={26} color="#f97316" />
+        <Text style={styles.headerText}>tienda</Text>
+      </Animated.View>
       <View style={styles.searchBarWrapper}>
         <View style={styles.searchBar}>
           <EvilIcons name="search" size={24} color="black" />
@@ -46,7 +70,7 @@ export function Tienda() {
             styles.button,
             {
               transitionProperty: ["width", "marginLeft"],
-              transitionDuration: 300,
+              transitionDuration: 200,
               transitionTimingFunction: "ease-in-out",
               width: isFocused ? 50 : 0,
               marginLeft: isFocused ? 8 : 0,
@@ -70,6 +94,18 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: "#fafafa",
+  },
+  header: {
+    // height: 0,
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 6,
+    marginHorizontal: 8,
+  },
+  headerText: {
+    fontSize: 36,
+    fontWeight: "bold",
+    fontFamily: "Menlo",
   },
   searchBarWrapper: {
     flexDirection: "row",
