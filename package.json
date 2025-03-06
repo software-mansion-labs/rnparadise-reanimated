@@ -29,6 +29,7 @@
   "devDependencies": {
     "@babel/core": "^7.20.0",
     "@types/react": "~18.3.12",
+    "prettier": "^3.5.3",
     "typescript": "^5.8.2"
   },
   "private": true,
