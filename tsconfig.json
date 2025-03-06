@@ -2,7 +2,8 @@
   "compilerOptions": {
     "baseUrl": ".",
     "paths": {
-      "@/*": ["./src/*"]
+      "@/*": ["./src/*"],
+      "three": ["node_modules/@types/three/src/Three.WebGPU.d.ts"],
     },
     "strict": true
   },

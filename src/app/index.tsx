@@ -4,25 +4,10 @@ import { Container } from "@/components/Container";
 import { routes } from "@/lib/routes";
 import { layout } from "@/lib/theme";
 import { router } from "expo-router";
+import { Preview } from "@/components/3DPreview";
 
 export default function HomeScreen() {
-  return (
-    <Container centered={false}>
-      <ScrollView contentContainerStyle={{ padding: layout.spacing * 2 }}>
-        {routes.map((route) => (
-          <TouchableOpacity
-            // @ts-ignore
-            onPress={() => router.navigate(route.href)}
-            key={route.href}
-            style={styles.button}
-          >
-            <Text style={styles.title}>{route.title}</Text>
-            <Text style={styles.subtitle}>{route.subtitle}</Text>
-          </TouchableOpacity>
-        ))}
-      </ScrollView>
-    </Container>
-  );
+  return <Preview />;
 }
 
 const styles = StyleSheet.create({
