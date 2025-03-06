@@ -21,23 +21,18 @@ export const routes: RouteMeta[] = [
     subtitle: "Lesson 3",
   },
   {
-    href: "ScrollAnimation",
-    title: "Scroll Animation 👉",
-    subtitle: "Lesson 4",
-  },
-  {
     href: "EmojiStagger",
     title: "EmojiStagger 👉",
-    subtitle: "Lesson 5",
+    subtitle: "Lesson 4",
   },
   {
     href: "SkiaThemeCurtain",
     title: "Skia Theme Curtain 👉",
-    subtitle: "Lesson 6",
+    subtitle: "Lesson 5",
   },
   {
-    href: "Interpolation",
-    title: "Interpolation 👉",
-    subtitle: "Lesson 7",
+    href: "Tienda",
+    title: "Tienda 👉",
+    subtitle: "Lesson 6",
   },
 ];
