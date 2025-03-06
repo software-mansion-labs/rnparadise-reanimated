@@ -15,6 +15,7 @@ import Animated, {
 } from "react-native-reanimated";
 import EvilIcons from "@expo/vector-icons/EvilIcons";
 import FontAwesome from "@expo/vector-icons/FontAwesome";
+import { Preview } from "@/components/3DPreview";
 
 const AnimatedPressable = Animated.createAnimatedComponent(Pressable);
 
@@ -100,7 +101,8 @@ export function Tienda() {
           </Text>
         </AnimatedPressable>
       </View>
-      <View style={styles.skeleton}>
+      <Preview />
+      {/* <View style={styles.skeleton}>
         <Animated.View
           style={[
             styles.gradient,
@@ -119,7 +121,7 @@ export function Tienda() {
             },
           ]}
         />
-      </View>
+      </View> */}
       <Animated.View style={[styles.line]} />
 
       <Text style={styles.price}>$99.9</Text>
