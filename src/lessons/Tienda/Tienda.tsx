@@ -48,7 +48,7 @@ export function Tienda() {
               transitionProperty: ["width", "marginLeft"],
               transitionDuration: 300,
               transitionTimingFunction: "ease-in-out",
-              width: isFocused ? 60 : 0,
+              width: isFocused ? 50 : 0,
               marginLeft: isFocused ? 8 : 0,
             },
           ]}
@@ -94,7 +94,6 @@ const styles = StyleSheet.create({
   },
   button: {
     justifyContent: "center",
-    alignItems: "center",
   },
   buttonText: {
     color: "#3b82f6",
