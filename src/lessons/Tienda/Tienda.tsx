@@ -1,51 +1,105 @@
-import { useRef, useState } from "react";
+import { useLayoutEffect, useRef, useState } from "react";
 import {
   StyleSheet,
   View,
   Text,
-  SafeAreaView,
   TextInput,
   Pressable,
   Dimensions,
 } from "react-native";
 import Animated, {
-  Keyframe,
-  LinearTransition,
-  ZoomInLeft,
+  FadeIn,
+  FadeInRight,
+  FadeInUp,
+  interpolate,
+  measure,
+  runOnJS,
+  runOnUI,
+  useAnimatedRef,
+  useAnimatedStyle,
+  useSharedValue,
+  withSpring,
 } from "react-native-reanimated";
 import EvilIcons from "@expo/vector-icons/EvilIcons";
 import FontAwesome from "@expo/vector-icons/FontAwesome";
 import { Preview } from "@/components/3DPreview";
+import MaterialIcons from "@expo/vector-icons/MaterialIcons";
+import Entypo from "@expo/vector-icons/Entypo";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 const AnimatedPressable = Animated.createAnimatedComponent(Pressable);
 
-const stretch = new Keyframe({
-  0: {
-    width: 0,
-  },
-  100: {
-    width: 92,
-  },
-});
-
 export function Tienda() {
+  const insets = useSafeAreaInsets();
   const inputRef = useRef<TextInput>(null);
   const cancelRef = useRef<View>(null);
   const [isFocused, setFocus] = useState(false);
   const [headerHeight, setHeaderHeight] = useState<number | undefined>(
     undefined,
   );
-  const [priceWidth, setPriceWidth] = useState<number | undefined>(undefined);
+  const [pressed, setPressed] = useState(false);
+  const cartRef = useAnimatedRef();
+  const dotRef = useAnimatedRef();
+  const offsetX = useSharedValue(0);
+  const offsetY = useSharedValue(0);
+  const finalOffsetX = useSharedValue(0);
+  const finalOffsetY = useSharedValue(0);
+  const [counter, setCounter] = useState(0);
 
-  const onCancel = () => {
+  const handleCancel = () => {
     if (inputRef?.current) {
       inputRef.current.blur();
       inputRef.current.clear();
     }
   };
 
+  useLayoutEffect(() => {
+    runOnUI(() => {
+      const cartMeasurement = measure(cartRef);
+      const dotMeasurement = measure(dotRef);
+
+      if (!cartMeasurement || !dotMeasurement) {
+        return;
+      }
+
+      finalOffsetX.value = -dotMeasurement?.pageX + cartMeasurement?.pageX;
+      finalOffsetY.value = -dotMeasurement?.pageY + cartMeasurement?.pageY;
+    })();
+  }, []);
+
+  const handleDotAnimate = () => {
+    offsetX.value = withSpring(finalOffsetX.value, {
+      stiffness: 60,
+      damping: 15,
+    });
+    offsetY.value = withSpring(
+      finalOffsetY.value,
+      {
+        stiffness: 60,
+        damping: 15,
+        restDisplacementThreshold: 200,
+      },
+      () => {
+        offsetY.value = 0;
+        offsetX.value = 0;
+        runOnJS(setCounter)(counter + 1);
+      },
+    );
+  };
+
+  const dotAnimatedStyle = useAnimatedStyle(() => {
+    return {
+      transform: [{ translateX: offsetX.value }, { translateY: offsetY.value }],
+      opacity: interpolate(
+        offsetX.value,
+        [0, finalOffsetX.value * 0.8, finalOffsetX.value],
+        [1, 1, 0],
+      ),
+    };
+  });
+
   return (
-    <SafeAreaView style={styles.container}>
+    <View style={[styles.container, { paddingTop: insets.top }]}>
       <Animated.View
         style={[
           styles.header,
@@ -63,8 +117,16 @@ export function Tienda() {
           }
         }}
       >
-        <FontAwesome name="opencart" size={26} color="#f97316" />
         <Text style={styles.headerText}>tienda</Text>
+        <Animated.View style={styles.cart} ref={cartRef}>
+          <FontAwesome name="shopping-cart" size={16} color="#450a0a" />
+
+          {counter > 0 && (
+            <Animated.View style={styles.counter} entering={FadeIn}>
+              <Text style={styles.counterText}>{counter}</Text>
+            </Animated.View>
+          )}
+        </Animated.View>
       </Animated.View>
       <View style={styles.searchBarWrapper}>
         <View style={styles.searchBar}>
@@ -80,7 +142,7 @@ export function Tienda() {
         </View>
         <AnimatedPressable
           ref={cancelRef}
-          onPress={onCancel}
+          onPress={handleCancel}
           style={[
             styles.button,
             {
@@ -121,11 +183,77 @@ export function Tienda() {
             },
           ]}
         />
-      </View> */}
-      <Animated.View style={[styles.line]} />
+      </View>
+      */}
+      <View style={styles.content}>
+        <Text style={styles.price}>$220.99</Text>
+        <View style={styles.row}>
+          <Text style={styles.name}>Nike Roshe Run</Text>
+          <View style={styles.priceRow}>
+            {new Array(5).fill(null).map((_, i) => (
+              <Animated.View
+                key={i}
+                entering={FadeInUp.delay(80 * i + 800)
+                  .springify()
+                  .stiffness(100)
+                  .damping(10)}
+              >
+                <Entypo name="star" size={14} color="#fbbf24" />
+              </Animated.View>
+            ))}
+            <Animated.Text entering={FadeInRight.delay(800)}>
+              4.97
+            </Animated.Text>
+          </View>
+        </View>
+        <View style={styles.shippingRow}>
+          <MaterialIcons name="local-shipping" size={16} color="#15803d" />
+          <Text style={styles.shipping}>Free shipping</Text>
+        </View>
+        <View style={styles.shippingTo}>
+          <Text style={styles.shippingToText}>Shipping to Tenerife</Text>
+        </View>
+      </View>
 
-      <Text style={styles.price}>$99.9</Text>
-    </SafeAreaView>
+      <View style={[styles.sheet, { paddingBottom: insets.bottom }]}>
+        <Pressable
+          onPressIn={() => setPressed(true)}
+          onPressOut={() => {
+            setPressed(false);
+            handleDotAnimate();
+          }}
+        >
+          <Animated.View
+            style={[
+              styles.buyButton,
+              pressed
+                ? {
+                    animationDuration: 120,
+                    animationTimingFunction: "ease-in",
+                    animationFillMode: "forwards",
+                    animationName: {
+                      "0%": { transform: [{ translateY: 0 }] },
+                      "100%": { transform: [{ translateY: 6 }] },
+                    },
+                  }
+                : {
+                    animationDuration: 120,
+                    animationTimingFunction: "ease-out",
+                    animationFillMode: "forwards",
+                    animationName: {
+                      "0%": { transform: [{ translateY: 6 }] },
+                      "100%": { transform: [{ translateY: 0 }] },
+                    },
+                  },
+            ]}
+          >
+            <Text style={styles.buyButtonText}>Buy</Text>
+          </Animated.View>
+          <Animated.View style={styles.buttonBackground} />
+        </Pressable>
+      </View>
+      <Animated.View style={[styles.dot, dotAnimatedStyle]} ref={dotRef} />
+    </View>
   );
 }
 
@@ -135,16 +263,25 @@ const styles = StyleSheet.create({
     backgroundColor: "#fafafa",
   },
   header: {
-    // height: 0,
     flexDirection: "row",
     alignItems: "center",
+    justifyContent: "space-between",
     gap: 6,
     marginHorizontal: 8,
+  },
+  cart: {
+    width: 28,
+    height: 28,
+    borderRadius: 14,
+    backgroundColor: "#f0f1f6",
+    justifyContent: "center",
+    alignItems: "center",
   },
   headerText: {
     fontSize: 36,
     fontWeight: "bold",
     fontFamily: "Menlo",
+    color: "#7f1d1d",
   },
   searchBarWrapper: {
     flexDirection: "row",
@@ -189,20 +326,97 @@ const styles = StyleSheet.create({
     [process.env.EXPO_OS === "web"
       ? "backgroundImage"
       : "experimental_backgroundImage"]:
-      "linear-gradient(100deg, #ebeff5 46%, #fafafa 50%, #ebeff5 54%)",
+      "linear-gradient(100deg, #f0f1f6 46%, #fafafa 50%, #f0f1f6 54%)",
   },
   price: {
-    fontSize: 36,
+    fontSize: 22,
+  },
+  content: {
+    marginHorizontal: 8,
+    gap: 4,
+  },
+  sheet: {
+    height: 100,
+    width: "100%",
+    backgroundColor: "#f0f1f6",
+    position: "absolute",
+    zIndex: 100,
+    bottom: 0,
+    paddingTop: 10,
+    paddingHorizontal: 8,
+  },
+  buyButton: {
+    backgroundColor: "rgb(208, 49, 49)",
+    padding: 8,
+    borderRadius: 8,
+  },
+  buttonBackground: {
+    backgroundColor: "rgb(165, 41, 41)",
+    borderRadius: 8,
+    height: 40,
+    transform: [{ translateY: -32 }],
+    zIndex: -1,
+  },
+  buyButtonText: {
+    color: "white",
+    fontSize: 22,
+    textAlign: "center",
     fontWeight: "bold",
+  },
+  dot: {
+    width: 14,
+    height: 14,
+    borderRadius: 7,
+    backgroundColor: "rgb(208, 49, 49)",
+    position: "absolute",
+    zIndex: 5,
+    left: "53%",
+    bottom: 10,
+  },
+  counter: {
+    position: "absolute",
+    top: -8,
+    left: -8,
+    backgroundColor: "rgb(208, 49, 49)",
+    borderRadius: 8,
+    width: 18,
+    height: 18,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  counterText: {
+    color: "white",
+    fontSize: 11,
     fontFamily: "Menlo",
   },
-  line: {
-    position: "relative",
-    top: 20,
-    height: 6,
-    width: 92,
-    transform: [{ rotate: "-8deg" }],
-    backgroundColor: "red",
-    marginHorizontal: 8,
+  priceRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    gap: 4,
+  },
+  name: {
+    fontWeight: "bold",
+  },
+  shippingRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 4,
+  },
+  shipping: {
+    fontSize: 16,
+    color: "#15803d",
+  },
+  shippingTo: {
+    borderRadius: 6,
+    padding: 3,
+    backgroundColor: "#ecfdf5",
+  },
+  shippingToText: {
+    color: "#15803d",
+  },
+  row: {
+    flexDirection: "row",
+    justifyContent: "space-between",
   },
 });
