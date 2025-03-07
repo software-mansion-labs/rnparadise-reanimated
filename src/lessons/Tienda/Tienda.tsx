@@ -48,10 +48,6 @@ export function Tienda() {
     }
   };
 
-  useDerivedValue(() => {
-    console.log(offsetX.value, offsetY.value);
-  });
-
   useLayoutEffect(() => {
     runOnUI(() => {
       const cartMeasurement = measure(cartRef);
