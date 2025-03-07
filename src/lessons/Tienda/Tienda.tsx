@@ -1,4 +1,4 @@
-import { useRef, useState } from "react";
+import { useLayoutEffect, useRef, useState } from "react";
 import {
   StyleSheet,
   View,
@@ -8,7 +8,17 @@ import {
   Pressable,
   Dimensions,
 } from "react-native";
-import Animated, { Keyframe } from "react-native-reanimated";
+import Animated, {
+  interpolate,
+  Keyframe,
+  measure,
+  runOnUI,
+  useAnimatedRef,
+  useAnimatedStyle,
+  useDerivedValue,
+  useSharedValue,
+  withSpring,
+} from "react-native-reanimated";
 import EvilIcons from "@expo/vector-icons/EvilIcons";
 import FontAwesome from "@expo/vector-icons/FontAwesome";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
@@ -23,15 +33,67 @@ export function Tienda() {
   const [headerHeight, setHeaderHeight] = useState<number | undefined>(
     undefined,
   );
-  const [priceWidth, setPriceWidth] = useState<number | undefined>(undefined);
   const [pressed, setPressed] = useState(false);
+  const cartRef = useAnimatedRef();
+  const dotRef = useAnimatedRef();
+  const offsetX = useSharedValue(0);
+  const offsetY = useSharedValue(0);
+  const finalOffsetX = useSharedValue(0);
+  const finalOffsetY = useSharedValue(0);
 
-  const onCancel = () => {
+  const handleCancel = () => {
     if (inputRef?.current) {
       inputRef.current.blur();
       inputRef.current.clear();
     }
   };
+
+  useDerivedValue(() => {
+    console.log(offsetX.value, offsetY.value);
+  });
+
+  useLayoutEffect(() => {
+    runOnUI(() => {
+      const cartMeasurement = measure(cartRef);
+      const dotMeasurement = measure(dotRef);
+
+      if (!cartMeasurement || !dotMeasurement) {
+        return;
+      }
+
+      finalOffsetX.value = -dotMeasurement?.pageX + cartMeasurement?.pageX;
+      finalOffsetY.value = -dotMeasurement?.pageY + cartMeasurement?.pageY;
+    })();
+  }, []);
+
+  const handleDotAnimate = () => {
+    offsetX.value = withSpring(finalOffsetX.value, {
+      stiffness: 60,
+      damping: 15,
+    });
+    offsetY.value = withSpring(
+      finalOffsetY.value,
+      {
+        stiffness: 60,
+        damping: 15,
+      },
+      () => {
+        offsetY.value = 0;
+        offsetX.value = 0;
+      },
+    );
+  };
+
+  const dotAnimatedStyle = useAnimatedStyle(() => {
+    return {
+      transform: [{ translateX: offsetX.value }, { translateY: offsetY.value }],
+      opacity: interpolate(
+        offsetX.value,
+        [0, finalOffsetX.value * 0.8, finalOffsetX.value],
+        [1, 1, 0],
+      ),
+    };
+  });
 
   return (
     <View style={[styles.container, { paddingTop: insets.top }]}>
@@ -53,9 +115,9 @@ export function Tienda() {
         }}
       >
         <Text style={styles.headerText}>tienda</Text>
-        <View style={styles.cart}>
+        <Animated.View style={styles.cart} ref={cartRef}>
           <FontAwesome name="shopping-cart" size={16} color="#450a0a" />
-        </View>
+        </Animated.View>
       </Animated.View>
       <View style={styles.searchBarWrapper}>
         <View style={styles.searchBar}>
@@ -71,7 +133,7 @@ export function Tienda() {
         </View>
         <AnimatedPressable
           ref={cancelRef}
-          onPress={onCancel}
+          onPress={handleCancel}
           style={[
             styles.button,
             {
@@ -115,10 +177,14 @@ export function Tienda() {
       <View style={styles.content}>
         <Text style={styles.price}>$99.9</Text>
       </View>
+
       <View style={[styles.sheet, { paddingBottom: insets.bottom }]}>
         <Pressable
           onPressIn={() => setPressed(true)}
-          onPressOut={() => setPressed(false)}
+          onPressOut={() => {
+            setPressed(false);
+            handleDotAnimate();
+          }}
         >
           <Animated.View
             style={[
@@ -149,6 +215,7 @@ export function Tienda() {
           <Animated.View style={styles.buttonBackground} />
         </Pressable>
       </View>
+      <Animated.View style={[styles.dot, dotAnimatedStyle]} ref={dotRef} />
     </View>
   );
 }
@@ -236,6 +303,7 @@ const styles = StyleSheet.create({
     width: "100%",
     backgroundColor: "#f0f1f6",
     position: "absolute",
+    zIndex: 100,
     bottom: 0,
     paddingTop: 10,
     paddingHorizontal: 20,
@@ -258,5 +326,15 @@ const styles = StyleSheet.create({
     textAlign: "center",
     fontWeight: "bold",
     fontFamily: "Menlo",
+  },
+  dot: {
+    width: 10,
+    height: 10,
+    borderRadius: 5,
+    backgroundColor: "rgb(208, 49, 49)",
+    position: "absolute",
+    zIndex: 5,
+    left: "53%",
+    bottom: 10,
   },
 });
