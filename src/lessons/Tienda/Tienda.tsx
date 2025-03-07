@@ -9,13 +9,13 @@ import {
   Dimensions,
 } from "react-native";
 import Animated, {
+  FadeIn,
   interpolate,
-  Keyframe,
   measure,
+  runOnJS,
   runOnUI,
   useAnimatedRef,
   useAnimatedStyle,
-  useDerivedValue,
   useSharedValue,
   withSpring,
 } from "react-native-reanimated";
@@ -40,6 +40,7 @@ export function Tienda() {
   const offsetY = useSharedValue(0);
   const finalOffsetX = useSharedValue(0);
   const finalOffsetY = useSharedValue(0);
+  const [counter, setCounter] = useState(0);
 
   const handleCancel = () => {
     if (inputRef?.current) {
@@ -72,10 +73,12 @@ export function Tienda() {
       {
         stiffness: 60,
         damping: 15,
+        restDisplacementThreshold: 200,
       },
       () => {
         offsetY.value = 0;
         offsetX.value = 0;
+        runOnJS(setCounter)(counter + 1);
       },
     );
   };
@@ -113,6 +116,12 @@ export function Tienda() {
         <Text style={styles.headerText}>tienda</Text>
         <Animated.View style={styles.cart} ref={cartRef}>
           <FontAwesome name="shopping-cart" size={16} color="#450a0a" />
+
+          {counter > 0 && (
+            <Animated.View style={styles.counter} entering={FadeIn}>
+              <Text style={styles.counterText}>{counter}</Text>
+            </Animated.View>
+          )}
         </Animated.View>
       </Animated.View>
       <View style={styles.searchBarWrapper}>
@@ -324,13 +333,29 @@ const styles = StyleSheet.create({
     fontFamily: "Menlo",
   },
   dot: {
-    width: 10,
-    height: 10,
-    borderRadius: 5,
+    width: 14,
+    height: 14,
+    borderRadius: 7,
     backgroundColor: "rgb(208, 49, 49)",
     position: "absolute",
     zIndex: 5,
     left: "53%",
     bottom: 10,
+  },
+  counter: {
+    position: "absolute",
+    top: -8,
+    left: -8,
+    backgroundColor: "rgb(208, 49, 49)",
+    borderRadius: 8,
+    width: 18,
+    height: 18,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  counterText: {
+    color: "white",
+    fontSize: 11,
+    fontFamily: "Menlo",
   },
 });
