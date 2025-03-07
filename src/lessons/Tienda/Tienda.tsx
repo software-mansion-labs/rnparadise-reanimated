@@ -15,15 +15,6 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 const AnimatedPressable = Animated.createAnimatedComponent(Pressable);
 
-const stretch = new Keyframe({
-  0: {
-    width: 0,
-  },
-  100: {
-    width: 92,
-  },
-});
-
 export function Tienda() {
   const insets = useSafeAreaInsets();
   const inputRef = useRef<TextInput>(null);
@@ -61,8 +52,10 @@ export function Tienda() {
           }
         }}
       >
-        <FontAwesome name="opencart" size={26} color="rgb(208, 49, 49)" />
         <Text style={styles.headerText}>tienda</Text>
+        <View style={styles.cart}>
+          <FontAwesome name="shopping-cart" size={16} color="#450a0a" />
+        </View>
       </Animated.View>
       <View style={styles.searchBarWrapper}>
         <View style={styles.searchBar}>
@@ -151,7 +144,7 @@ export function Tienda() {
                   },
             ]}
           >
-            <Text style={styles.text}>Buy</Text>
+            <Text style={styles.buyButtonText}>Buy</Text>
           </Animated.View>
           <Animated.View style={styles.buttonBackground} />
         </Pressable>
@@ -166,16 +159,25 @@ const styles = StyleSheet.create({
     backgroundColor: "#fafafa",
   },
   header: {
-    // height: 0,
     flexDirection: "row",
     alignItems: "center",
+    justifyContent: "space-between",
     gap: 6,
     marginHorizontal: 8,
+  },
+  cart: {
+    width: 28,
+    height: 28,
+    borderRadius: 14,
+    backgroundColor: "#f0f1f6",
+    justifyContent: "center",
+    alignItems: "center",
   },
   headerText: {
     fontSize: 36,
     fontWeight: "bold",
     fontFamily: "Menlo",
+    color: "#7f1d1d",
   },
   searchBarWrapper: {
     flexDirection: "row",
@@ -220,7 +222,7 @@ const styles = StyleSheet.create({
     [process.env.EXPO_OS === "web"
       ? "backgroundImage"
       : "experimental_backgroundImage"]:
-      "linear-gradient(100deg, #ebeff5 46%, #fafafa 50%, #ebeff5 54%)",
+      "linear-gradient(100deg, #f0f1f6 46%, #fafafa 50%, #f0f1f6 54%)",
   },
   price: {
     fontSize: 22,
@@ -250,10 +252,11 @@ const styles = StyleSheet.create({
     transform: [{ translateY: -32 }],
     zIndex: -1,
   },
-  text: {
+  buyButtonText: {
     color: "white",
     fontSize: 22,
     textAlign: "center",
     fontWeight: "bold",
+    fontFamily: "Menlo",
   },
 });
