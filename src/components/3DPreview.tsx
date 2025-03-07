@@ -1,5 +1,5 @@
 import * as THREE from "three";
-import { StyleSheet, View } from "react-native";
+import { View } from "react-native";
 
 import { makeWebGPURenderer } from "./makeGPURenderer";
 import { Canvas, useCanvasEffect } from "react-native-wgpu";
@@ -7,7 +7,6 @@ import { Canvas, useCanvasEffect } from "react-native-wgpu";
 window.parent = window;
 
 export function Preview() {
-  console.log("halo");
   const ref = useCanvasEffect(async () => {
     const context = ref.current!.getContext("webgpu")!;
     const { width, height } = context.canvas;
@@ -17,7 +16,7 @@ export function Preview() {
 
     const scene = new THREE.Scene();
 
-    const geometry = new THREE.BoxGeometry(0.2, 0.2, 0.2);
+    const geometry = new THREE.BoxGeometry(0.4, 0.8, 0.2);
     const material = new THREE.MeshNormalMaterial();
 
     const mesh = new THREE.Mesh(geometry, material);
@@ -41,7 +40,7 @@ export function Preview() {
   });
 
   return (
-    <View style={{ flex: 1 }}>
+    <View style={{ flex: 0.75 }}>
       <Canvas ref={ref} style={{ flex: 1 }} />
     </View>
   );

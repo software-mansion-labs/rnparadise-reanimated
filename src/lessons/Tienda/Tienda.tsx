@@ -164,27 +164,6 @@ export function Tienda() {
         </AnimatedPressable>
       </View>
       <Preview />
-      {/* <View style={styles.skeleton}>
-        <Animated.View
-          style={[
-            styles.gradient,
-            {
-              animationName: {
-                from: {
-                  transform: [{ translateX: "-25%" }],
-                },
-                to: {
-                  transform: [{ translateX: "25%" }],
-                },
-              },
-              animationDuration: "1s",
-              animationIterationCount: "infinite",
-              animationTimingFunction: "linear",
-            },
-          ]}
-        />
-      </View>
-      */}
       <View style={styles.content}>
         <Text style={styles.price}>$220.99</Text>
         <View style={styles.row}>
