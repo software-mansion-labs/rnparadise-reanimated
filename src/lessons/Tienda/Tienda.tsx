@@ -8,13 +8,10 @@ import {
   Pressable,
   Dimensions,
 } from "react-native";
-import Animated, {
-  Keyframe,
-  LinearTransition,
-  ZoomInLeft,
-} from "react-native-reanimated";
+import Animated, { Keyframe } from "react-native-reanimated";
 import EvilIcons from "@expo/vector-icons/EvilIcons";
 import FontAwesome from "@expo/vector-icons/FontAwesome";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 const AnimatedPressable = Animated.createAnimatedComponent(Pressable);
 
@@ -28,6 +25,7 @@ const stretch = new Keyframe({
 });
 
 export function Tienda() {
+  const insets = useSafeAreaInsets();
   const inputRef = useRef<TextInput>(null);
   const cancelRef = useRef<View>(null);
   const [isFocused, setFocus] = useState(false);
@@ -35,6 +33,7 @@ export function Tienda() {
     undefined,
   );
   const [priceWidth, setPriceWidth] = useState<number | undefined>(undefined);
+  const [pressed, setPressed] = useState(false);
 
   const onCancel = () => {
     if (inputRef?.current) {
@@ -44,7 +43,7 @@ export function Tienda() {
   };
 
   return (
-    <SafeAreaView style={styles.container}>
+    <View style={[styles.container, { paddingTop: insets.top }]}>
       <Animated.View
         style={[
           styles.header,
@@ -62,7 +61,7 @@ export function Tienda() {
           }
         }}
       >
-        <FontAwesome name="opencart" size={26} color="#f97316" />
+        <FontAwesome name="opencart" size={26} color="rgb(208, 49, 49)" />
         <Text style={styles.headerText}>tienda</Text>
       </Animated.View>
       <View style={styles.searchBarWrapper}>
@@ -120,10 +119,44 @@ export function Tienda() {
           ]}
         />
       </View>
-      <Animated.View style={[styles.line]} />
-
-      <Text style={styles.price}>$99.9</Text>
-    </SafeAreaView>
+      <View style={styles.content}>
+        <Text style={styles.price}>$99.9</Text>
+      </View>
+      <View style={[styles.sheet, { paddingBottom: insets.bottom }]}>
+        <Pressable
+          onPressIn={() => setPressed(true)}
+          onPressOut={() => setPressed(false)}
+        >
+          <Animated.View
+            style={[
+              styles.buyButton,
+              pressed
+                ? {
+                    animationDuration: 120,
+                    animationTimingFunction: "ease-in",
+                    animationFillMode: "forwards",
+                    animationName: {
+                      "0%": { transform: [{ translateY: 0 }] },
+                      "100%": { transform: [{ translateY: 6 }] },
+                    },
+                  }
+                : {
+                    animationDuration: 120,
+                    animationTimingFunction: "ease-out",
+                    animationFillMode: "forwards",
+                    animationName: {
+                      "0%": { transform: [{ translateY: 6 }] },
+                      "100%": { transform: [{ translateY: 0 }] },
+                    },
+                  },
+            ]}
+          >
+            <Text style={styles.text}>Buy</Text>
+          </Animated.View>
+          <Animated.View style={styles.buttonBackground} />
+        </Pressable>
+      </View>
+    </View>
   );
 }
 
@@ -190,17 +223,37 @@ const styles = StyleSheet.create({
       "linear-gradient(100deg, #ebeff5 46%, #fafafa 50%, #ebeff5 54%)",
   },
   price: {
-    fontSize: 36,
-    fontWeight: "bold",
+    fontSize: 22,
     fontFamily: "Menlo",
   },
-  line: {
-    position: "relative",
-    top: 20,
-    height: 6,
-    width: 92,
-    transform: [{ rotate: "-8deg" }],
-    backgroundColor: "red",
+  content: {
     marginHorizontal: 8,
+  },
+  sheet: {
+    height: 100,
+    width: "100%",
+    backgroundColor: "#f0f1f6",
+    position: "absolute",
+    bottom: 0,
+    paddingTop: 10,
+    paddingHorizontal: 20,
+  },
+  buyButton: {
+    backgroundColor: "rgb(208, 49, 49)",
+    padding: 8,
+    borderRadius: 8,
+  },
+  buttonBackground: {
+    backgroundColor: "rgb(165, 41, 41)",
+    borderRadius: 8,
+    height: 40,
+    transform: [{ translateY: -32 }],
+    zIndex: -1,
+  },
+  text: {
+    color: "white",
+    fontSize: 22,
+    textAlign: "center",
+    fontWeight: "bold",
   },
 });
