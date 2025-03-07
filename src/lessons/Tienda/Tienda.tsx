@@ -9,6 +9,8 @@ import {
 } from "react-native";
 import Animated, {
   FadeIn,
+  FadeInRight,
+  FadeInUp,
   interpolate,
   measure,
   runOnJS,
@@ -20,6 +22,8 @@ import Animated, {
 } from "react-native-reanimated";
 import EvilIcons from "@expo/vector-icons/EvilIcons";
 import FontAwesome from "@expo/vector-icons/FontAwesome";
+import MaterialIcons from "@expo/vector-icons/MaterialIcons";
+import Entypo from "@expo/vector-icons/Entypo";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 const AnimatedPressable = Animated.createAnimatedComponent(Pressable);
@@ -179,7 +183,33 @@ export function Tienda() {
         />
       </View>
       <View style={styles.content}>
-        <Text style={styles.price}>$99.9</Text>
+        <Text style={styles.price}>$220.99</Text>
+        <View style={styles.row}>
+          <Text style={styles.name}>Nike Roshe Run</Text>
+          <View style={styles.priceRow}>
+            {new Array(5).fill(null).map((_, i) => (
+              <Animated.View
+                key={i}
+                entering={FadeInUp.delay(80 * i + 800)
+                  .springify()
+                  .stiffness(100)
+                  .damping(10)}
+              >
+                <Entypo name="star" size={14} color="#fbbf24" />
+              </Animated.View>
+            ))}
+            <Animated.Text entering={FadeInRight.delay(800)}>
+              4.97
+            </Animated.Text>
+          </View>
+        </View>
+        <View style={styles.shippingRow}>
+          <MaterialIcons name="local-shipping" size={16} color="#15803d" />
+          <Text style={styles.shipping}>Free shipping</Text>
+        </View>
+        <View style={styles.shippingTo}>
+          <Text style={styles.shippingToText}>Shipping to Tenerife</Text>
+        </View>
       </View>
 
       <View style={[styles.sheet, { paddingBottom: insets.bottom }]}>
@@ -297,10 +327,10 @@ const styles = StyleSheet.create({
   },
   price: {
     fontSize: 22,
-    fontFamily: "Menlo",
   },
   content: {
     marginHorizontal: 8,
+    gap: 4,
   },
   sheet: {
     height: 100,
@@ -329,7 +359,6 @@ const styles = StyleSheet.create({
     fontSize: 22,
     textAlign: "center",
     fontWeight: "bold",
-    fontFamily: "Menlo",
   },
   dot: {
     width: 14,
@@ -356,5 +385,35 @@ const styles = StyleSheet.create({
     color: "white",
     fontSize: 11,
     fontFamily: "Menlo",
+  },
+  priceRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    gap: 4,
+  },
+  name: {
+    fontWeight: "bold",
+  },
+  shippingRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 4,
+  },
+  shipping: {
+    fontSize: 16,
+    color: "#15803d",
+  },
+  shippingTo: {
+    borderRadius: 6,
+    padding: 3,
+    backgroundColor: "#ecfdf5",
+  },
+  shippingToText: {
+    color: "#15803d",
+  },
+  row: {
+    flexDirection: "row",
+    justifyContent: "space-between",
   },
 });
