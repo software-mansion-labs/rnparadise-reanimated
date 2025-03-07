@@ -340,7 +340,7 @@ const styles = StyleSheet.create({
     zIndex: 100,
     bottom: 0,
     paddingTop: 10,
-    paddingHorizontal: 20,
+    paddingHorizontal: 8,
   },
   buyButton: {
     backgroundColor: "rgb(208, 49, 49)",
