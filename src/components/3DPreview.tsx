@@ -1,47 +1,68 @@
 import * as THREE from "three";
 import { View } from "react-native";
 
-import { makeWebGPURenderer } from "./makeGPURenderer";
-import { Canvas, useCanvasEffect } from "react-native-wgpu";
-
-window.parent = window;
+import { Canvas, useGPUContext } from "react-native-wgpu";
+import { useEffect } from "react";
+import { makeWebGPURenderer, useGLTF } from "@/lib/wgpu";
 
 export function Preview() {
-  const ref = useCanvasEffect(async () => {
-    const context = ref.current!.getContext("webgpu")!;
+  const gltf = useGLTF(require("../../assets/shoe/shoe.gltf"));
+
+  const { ref, context } = useGPUContext();
+  useEffect(() => {
+    if (!gltf || !context) {
+      return;
+    }
+
     const { width, height } = context.canvas;
-
-    const camera = new THREE.PerspectiveCamera(70, width / height, 0.01, 10);
-    camera.position.z = 1;
-
+    const clock = new THREE.Clock();
+    const camera = new THREE.PerspectiveCamera(10, width / height, 0.25, 10);
     const scene = new THREE.Scene();
+    const light = new THREE.DirectionalLight(0xffffff, 3);
 
-    const geometry = new THREE.BoxGeometry(0.4, 0.8, 0.2);
-    const material = new THREE.MeshNormalMaterial();
-
-    const mesh = new THREE.Mesh(geometry, material);
-    scene.add(mesh);
+    camera.position.set(0, 0.2, 1);
+    light.position.set(0, 0.1, 1);
+    light.target.position.set(0, 0, 0);
+    gltf.scene.position.set(0, -0.1, 0);
 
     const renderer = makeWebGPURenderer(context);
-    console.log("Renderer");
-    await renderer.init();
-    console.log("Renderer initialized");
-    function animate(time: number) {
-      mesh.rotation.x = time / 2000;
-      mesh.rotation.y = time / 1000;
+    renderer.toneMapping = THREE.ACESFilmicToneMapping;
 
-      renderer.render(scene, camera);
-      context.present();
+    scene.add(light);
+    scene.add(gltf.scene);
+
+    function animateCamera() {
+      const distance = 2;
+      const elapsed = clock.getElapsedTime();
+
+      camera.position.x = Math.sin(elapsed) * distance;
+      camera.position.z = Math.cos(elapsed) * distance;
+      camera.lookAt(new THREE.Vector3(0, 0, 0));
+
+      light.position.x = camera.position.x;
+      light.position.z = camera.position.z;
+      light.target.position.set(0, 0, 0);
     }
+
+    function animate() {
+      animateCamera();
+      renderer.render(scene, camera);
+      context!.present();
+    }
+
     renderer.setAnimationLoop(animate);
     return () => {
       renderer.setAnimationLoop(null);
     };
-  });
+  }, [gltf, context]);
 
   return (
-    <View style={{ flex: 0.75 }}>
-      <Canvas ref={ref} style={{ flex: 1 }} />
+    <View style={{ flex: 0.75, justifyContent: "center" }}>
+      <Canvas
+        ref={ref}
+        transparent={true}
+        style={{ flex: 1, maxHeight: 450 }}
+      />
     </View>
   );
 }

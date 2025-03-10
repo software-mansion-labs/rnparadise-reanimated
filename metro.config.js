@@ -20,7 +20,7 @@ const extraConfig = {
         return {
           filePath: path.resolve(
             threePackagePath,
-            "examples/jsm/" + moduleName.replace("three/addons/", "") + ".js"
+            "examples/jsm/" + moduleName.replace("three/addons/", "") + ".js",
           ),
           type: "sourceFile",
         };

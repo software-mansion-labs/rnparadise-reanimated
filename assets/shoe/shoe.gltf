@@ -1,0 +1,260 @@
+{
+  "asset": {
+    "generator": "Khronos glTF Blender I/O v4.3.47",
+    "version": "2.0"
+  },
+  "extensionsUsed": ["KHR_materials_variants"],
+  "extensions": {
+    "KHR_materials_variants": {
+      "variants": [
+        {
+          "name": "midnight"
+        },
+        {
+          "name": "beach"
+        },
+        {
+          "name": "street"
+        }
+      ]
+    }
+  },
+  "scene": 0,
+  "scenes": [
+    {
+      "name": "Scene",
+      "nodes": [2]
+    }
+  ],
+  "nodes": [
+    {
+      "mesh": 0,
+      "name": "Shoe"
+    },
+    {
+      "children": [0],
+      "name": "g_Shoe"
+    },
+    {
+      "children": [1],
+      "name": "Shoeobj",
+      "scale": [0.14893949031829834, 0.14893949031829834, 0.14893949031829834],
+      "translation": [
+        0.001610487699508667, 0.07590250670909882, 0.004850998520851135
+      ]
+    }
+  ],
+  "materials": [
+    {
+      "name": "phong1SG",
+      "normalTexture": {
+        "index": 0
+      },
+      "occlusionTexture": {
+        "index": 1
+      },
+      "pbrMetallicRoughness": {
+        "baseColorTexture": {
+          "index": 2
+        },
+        "metallicRoughnessTexture": {
+          "index": 1
+        }
+      }
+    },
+    {
+      "name": "phong1SG.001",
+      "normalTexture": {
+        "index": 3
+      },
+      "occlusionTexture": {
+        "index": 4
+      },
+      "pbrMetallicRoughness": {
+        "baseColorTexture": {
+          "index": 5
+        },
+        "metallicRoughnessTexture": {
+          "index": 4
+        }
+      }
+    },
+    {
+      "name": "phong1SG.002",
+      "normalTexture": {
+        "index": 6
+      },
+      "occlusionTexture": {
+        "index": 7
+      },
+      "pbrMetallicRoughness": {
+        "baseColorTexture": {
+          "index": 8
+        },
+        "metallicRoughnessTexture": {
+          "index": 7
+        }
+      }
+    }
+  ],
+  "meshes": [
+    {
+      "name": "shoe",
+      "primitives": [
+        {
+          "attributes": {
+            "POSITION": 0,
+            "NORMAL": 1,
+            "TEXCOORD_0": 2
+          },
+          "extensions": {
+            "KHR_materials_variants": {
+              "mappings": [
+                {
+                  "material": 0,
+                  "variants": [0]
+                },
+                {
+                  "material": 1,
+                  "variants": [1]
+                },
+                {
+                  "material": 2,
+                  "variants": [2]
+                }
+              ]
+            }
+          },
+          "indices": 3,
+          "material": 0
+        }
+      ]
+    }
+  ],
+  "textures": [
+    {
+      "sampler": 0,
+      "source": 0
+    },
+    {
+      "sampler": 0,
+      "source": 1
+    },
+    {
+      "sampler": 0,
+      "source": 2
+    },
+    {
+      "sampler": 0,
+      "source": 0
+    },
+    {
+      "sampler": 0,
+      "source": 1
+    },
+    {
+      "sampler": 0,
+      "source": 3
+    },
+    {
+      "sampler": 0,
+      "source": 0
+    },
+    {
+      "sampler": 0,
+      "source": 1
+    },
+    {
+      "sampler": 0,
+      "source": 2
+    }
+  ],
+  "images": [
+    {
+      "mimeType": "image/jpeg",
+      "name": "normal",
+      "uri": "normal.jpg"
+    },
+    {
+      "mimeType": "image/jpeg",
+      "name": "occlusionRougnessMetalness",
+      "uri": "occlusionRougnessMetalness.jpg"
+    },
+    {
+      "mimeType": "image/jpeg",
+      "name": "diffuseBeach",
+      "uri": "diffuseBeach.jpg"
+    },
+    {
+      "mimeType": "image/jpeg",
+      "name": "diffuseStreet",
+      "uri": "diffuseStreet.jpg"
+    }
+  ],
+  "accessors": [
+    {
+      "bufferView": 0,
+      "componentType": 5126,
+      "count": 13540,
+      "max": [1.0000001192092896, 0.5139704942703247, 0.38874176144599915],
+      "min": [-1, -0.5139704942703247, -0.38874176144599915],
+      "type": "VEC3"
+    },
+    {
+      "bufferView": 1,
+      "componentType": 5126,
+      "count": 13540,
+      "type": "VEC3"
+    },
+    {
+      "bufferView": 2,
+      "componentType": 5126,
+      "count": 13540,
+      "type": "VEC2"
+    },
+    {
+      "bufferView": 3,
+      "componentType": 5123,
+      "count": 68100,
+      "type": "SCALAR"
+    }
+  ],
+  "bufferViews": [
+    {
+      "buffer": 0,
+      "byteLength": 162480,
+      "byteOffset": 0,
+      "target": 34962
+    },
+    {
+      "buffer": 0,
+      "byteLength": 162480,
+      "byteOffset": 162480,
+      "target": 34962
+    },
+    {
+      "buffer": 0,
+      "byteLength": 108320,
+      "byteOffset": 324960,
+      "target": 34962
+    },
+    {
+      "buffer": 0,
+      "byteLength": 136200,
+      "byteOffset": 433280,
+      "target": 34963
+    }
+  ],
+  "samplers": [
+    {
+      "magFilter": 9729,
+      "minFilter": 9987
+    }
+  ],
+  "buffers": [
+    {
+      "byteLength": 569480,
+      "uri": "shoe.bin"
+    }
+  ]
+}
