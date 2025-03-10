@@ -2,11 +2,13 @@ import * as THREE from "three";
 import { View } from "react-native";
 
 import { Canvas, useGPUContext } from "react-native-wgpu";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { makeWebGPURenderer, useGLTF } from "@/lib/wgpu";
+import { Loading } from "./Loading";
 
 export function Preview() {
   const gltf = useGLTF(require("../../assets/shoe/shoe.gltf"));
+  const [ready, setReady] = useState(false);
 
   const { ref, context } = useGPUContext();
   useEffect(() => {
@@ -48,6 +50,9 @@ export function Preview() {
       animateCamera();
       renderer.render(scene, camera);
       context!.present();
+      if (!ready) {
+        setReady(true);
+      }
     }
 
     renderer.setAnimationLoop(animate);
@@ -58,6 +63,7 @@ export function Preview() {
 
   return (
     <View style={{ flex: 0.75, justifyContent: "center" }}>
+      {!ready && <Loading />}
       <Canvas
         ref={ref}
         transparent={true}
