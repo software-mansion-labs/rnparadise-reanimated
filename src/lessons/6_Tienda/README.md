@@ -22,7 +22,7 @@ Each step builds upon the previous one, introducing new Reanimated concepts and 
 
 https://github.com/user-attachments/assets/531f75f5-8c9a-4898-b12d-9d82a653b1fa
 
-## Step 1 – Animate the header
+## Step 1 – Animate the header when focused
 
 <details>
 <summary>
@@ -93,7 +93,7 @@ https://github.com/user-attachments/assets/531f75f5-8c9a-4898-b12d-9d82a653b1fa
 
 <br/>
 
-## Step 2 - Animate the rating
+## Step 2 - Add stagger to the rating
 
 <details>
 <summary>
@@ -123,7 +123,7 @@ https://github.com/user-attachments/assets/531f75f5-8c9a-4898-b12d-9d82a653b1fa
 
 <br/>
 
-## Step 3 - Animate the buy button
+## Step 3 - Animate the buy button press
 
 <details>
 <summary>
