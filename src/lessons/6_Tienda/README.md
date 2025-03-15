@@ -78,21 +78,6 @@ https://github.com/user-attachments/assets/531f75f5-8c9a-4898-b12d-9d82a653b1fa
 
 <br/>
 
-<details>
-<summary>
-  <b>[3]</b> Add a FadeIn entering animation to the counter badge using Reanimated's built-in entering animations. This will create a smooth appearance effect when items are added to the cart.
-</summary>
-
-<br/>
-
-```jsx
- <Animated.View style={styles.counter} entering={FadeIn}>
-```
-
-</details>
-
-<br/>
-
 ## Step 2 - Add stagger to the rating
 
 <details>
@@ -391,6 +376,21 @@ export function Tienda() {
     </View>
   );
 }
+```
+
+</details>
+
+<br/>
+
+<details>
+<summary>
+  <b>[6]</b> Add a <code>FadeIn</code> entering animation to the counter badge using Reanimated's built-in entering animations. This will create a smooth appearance effect when items are added to the cart.
+</summary>
+
+<br/>
+
+```jsx
+ <Animated.View style={styles.counter} entering={FadeIn}>
 ```
 
 </details>

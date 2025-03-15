@@ -68,7 +68,7 @@ function Header({ counter }: { counter: number }) {
           <FontAwesome name="shopping-cart" size={16} color="#450a0a" />
 
           {counter > 0 && (
-            <Animated.View style={styles.counter} entering={FadeIn}>
+            <Animated.View style={styles.counter}>
               <Text style={styles.counterText}>{counter}</Text>
             </Animated.View>
           )}
