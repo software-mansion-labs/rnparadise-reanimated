@@ -255,7 +255,7 @@ export function Tienda() {
       <View style={[styles.sheet, { paddingBottom: insets.bottom }]}>
         <BuyButton onPress={incrementCart} />
       </View>
-      <Animated.View style={[styles.dot, dotAnimatedStyle]} ref={dotRef} />;
+      <Animated.View style={[styles.dot, dotAnimatedStyle]} ref={dotRef} />
     </View>
   );
 }
