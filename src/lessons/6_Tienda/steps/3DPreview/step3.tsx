@@ -43,6 +43,7 @@ export function Preview() {
     }
 
     const { width, height } = context.canvas;
+    const clock = new THREE.Clock();
     const camera = new THREE.PerspectiveCamera(10, width / height, 0.25, 10);
     const scene = new THREE.Scene();
     const light = new THREE.DirectionalLight(0xffffff, 3);
@@ -58,8 +59,21 @@ export function Preview() {
     scene.add(light);
     scene.add(gltf.scene);
 
-    function animate() {
+    function animateCamera() {
+      const distance = 2;
+      const elapsed = clock.getElapsedTime();
+
+      camera.position.x = Math.sin(elapsed) * distance;
+      camera.position.z = Math.cos(elapsed) * distance;
       camera.lookAt(new THREE.Vector3(0, 0, 0));
+
+      light.position.x = camera.position.x;
+      light.position.z = camera.position.z;
+      light.target.position.set(0, 0, 0);
+    }
+
+    function animate() {
+      animateCamera();
       renderer.render(scene, camera);
       context!.present();
       if (!ready) {

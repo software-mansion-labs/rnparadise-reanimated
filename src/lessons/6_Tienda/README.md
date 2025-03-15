@@ -688,6 +688,8 @@ export function Preview() {
 
 <br/>
 
+## Step 3 - Circulate the camera around the model
+
 <details>
 <summary>
   <b>[6]</b> Create a smooth camera animation using Three.js's <code>THREE.Clock</code> utility. The camera moves in a circular path around the model using trigonometric functions, creating a natural product showcase effect. The camera always looks at the center point to maintain focus on the model.
@@ -702,7 +704,7 @@ export function Preview() {
     }
 
     const { width, height } = context.canvas;
-    const clock = new THREE.Clock();
++    const clock = new THREE.Clock();
     const camera = new THREE.PerspectiveCamera(10, width / height, 0.25, 10);
     const scene = new THREE.Scene();
     const light = new THREE.DirectionalLight(0xffffff, 3);
