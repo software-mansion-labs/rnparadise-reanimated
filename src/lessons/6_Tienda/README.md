@@ -688,7 +688,7 @@ export function Preview() {
 
 <br/>
 
-## Step 3 - Circulate the camera around the model
+## Step 3 - Rotate the camera around the model
 
 <details>
 <summary>
