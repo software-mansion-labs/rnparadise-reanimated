@@ -481,7 +481,7 @@ function Loading() {
 
 <br/>
 
-## Step 2 - Add the 3D model
+## Step 2 - Set up the 3D model
 
 https://github.com/user-attachments/assets/e097fe9b-18fd-4c2b-b442-31e96638b91f
 
