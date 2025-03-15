@@ -2,7 +2,7 @@ import * as THREE from "three";
 import { View, StyleSheet, Dimensions } from "react-native";
 
 import { Canvas, useGPUContext } from "react-native-wgpu";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { makeWebGPURenderer, useGLTF } from "@/lib/wgpu";
 import Animated, { FadeOut } from "react-native-reanimated";
 
@@ -35,6 +35,11 @@ function Loading() {
 export function Preview() {
   const gltf = useGLTF(require("./assets/shoe/shoe.gltf"));
   const [ready, setReady] = useState(false);
+  const clock = useMemo(() => {
+    const clock = new THREE.Clock();
+    clock.autoStart = false;
+    return clock;
+  }, []);
 
   const { ref, context } = useGPUContext();
   useEffect(() => {
@@ -43,7 +48,6 @@ export function Preview() {
     }
 
     const { width, height } = context.canvas;
-    const clock = new THREE.Clock();
     const camera = new THREE.PerspectiveCamera(10, width / height, 0.25, 10);
     const scene = new THREE.Scene();
     const light = new THREE.DirectionalLight(0xffffff, 3);
@@ -76,9 +80,7 @@ export function Preview() {
       animateCamera();
       renderer.render(scene, camera);
       context!.present();
-      if (!ready) {
-        setReady(true);
-      }
+      setReady(true);
     }
 
     renderer.setAnimationLoop(animate);
@@ -86,6 +88,12 @@ export function Preview() {
       renderer.setAnimationLoop(null);
     };
   }, [gltf, context]);
+
+  useEffect(() => {
+    if (ready) {
+      clock.start();
+    }
+  }, [ready]);
 
   return (
     <View style={{ flex: 0.75, justifyContent: "center" }}>

@@ -62,9 +62,7 @@ export function Preview() {
       camera.lookAt(new THREE.Vector3(0, 0, 0));
       renderer.render(scene, camera);
       context!.present();
-      if (!ready) {
-        setReady(true);
-      }
+      setReady(true);
     }
 
     renderer.setAnimationLoop(animate);

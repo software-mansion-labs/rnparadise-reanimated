@@ -90,7 +90,6 @@ export function Preview() {
     scene.add(gltf.scene);
 
     let elapsed = 0;
-    clock.start();
     function animateCamera() {
       const distance = 2;
       elapsed += clock.getDelta();
@@ -110,9 +109,7 @@ export function Preview() {
       animateCamera();
       renderer.render(scene, camera);
       context!.present();
-      if (!ready) {
-        setReady(true);
-      }
+      setReady(true);
     }
 
     renderer.setAnimationLoop(animate);
@@ -120,6 +117,12 @@ export function Preview() {
       renderer.setAnimationLoop(null);
     };
   }, [gltf, context]);
+
+  useEffect(() => {
+    if (ready) {
+      clock.start();
+    }
+  }, [ready]);
 
   return (
     <View style={{ flex: 0.75, justifyContent: "center" }}>
