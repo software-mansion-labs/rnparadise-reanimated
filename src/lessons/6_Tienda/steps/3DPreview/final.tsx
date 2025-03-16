@@ -93,7 +93,6 @@ export function Preview() {
 
     let elapsed = 0;
     function animateCamera() {
-      const distance = 2;
       elapsed += clock.getDelta();
 
       const q1 = new THREE.Quaternion();
