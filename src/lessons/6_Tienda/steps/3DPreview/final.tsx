@@ -2,10 +2,9 @@ import * as THREE from "three";
 import { View, StyleSheet, Dimensions } from "react-native";
 
 import { Canvas, useGPUContext } from "react-native-wgpu";
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { makeWebGPURenderer, useGLTF } from "@/lib/wgpu";
 import Animated, { FadeOut } from "react-native-reanimated";
-import { Gesture, GestureDetector } from "react-native-gesture-handler";
 
 function Loading() {
   return (
@@ -36,8 +35,6 @@ function Loading() {
 export function Preview() {
   const gltf = useGLTF(require("./assets/shoe/shoe.gltf"));
   const [ready, setReady] = useState(false);
-  const translation = useRef(0);
-  const wasRunning = useRef(false);
   const clock = useMemo(() => {
     const clock = new THREE.Clock();
     clock.autoStart = false;
@@ -45,29 +42,6 @@ export function Preview() {
   }, []);
 
   const { ref, context } = useGPUContext();
-  const panGesture = Gesture.Pan()
-    .runOnJS(true)
-    .onStart(() => {
-      wasRunning.current = clock.running;
-      clock.stop();
-    })
-    .onChange((e) => {
-      translation.current += e.changeX;
-    })
-    .onEnd(() => {
-      if (wasRunning.current) {
-        clock.start();
-      }
-    });
-
-  const tapGesture = Gesture.Tap()
-    .runOnJS(true)
-    .onStart(() => {
-      clock.running ? clock.stop() : clock.start();
-    });
-
-  const gesture = Gesture.Exclusive(panGesture, tapGesture);
-
   useEffect(() => {
     if (!gltf || !context) {
       return;
@@ -89,15 +63,12 @@ export function Preview() {
     scene.add(light);
     scene.add(gltf.scene);
 
-    let elapsed = 0;
     function animateCamera() {
       const distance = 2;
-      elapsed += clock.getDelta();
+      const elapsed = clock.getElapsedTime();
 
-      camera.position.x =
-        Math.sin(elapsed - (Math.PI * translation.current) / width) * distance;
-      camera.position.z =
-        Math.cos(elapsed - (Math.PI * translation.current) / width) * distance;
+      camera.position.x = Math.sin(elapsed) * distance;
+      camera.position.z = Math.cos(elapsed) * distance;
       camera.lookAt(new THREE.Vector3(0, 0, 0));
 
       light.position.x = camera.position.x;
@@ -127,13 +98,11 @@ export function Preview() {
   return (
     <View style={{ flex: 0.75, justifyContent: "center" }}>
       {!ready && <Loading />}
-      <GestureDetector gesture={gesture}>
-        <Canvas
-          ref={ref}
-          transparent={true}
-          style={{ flex: 1, maxHeight: 450, margin: 20 }}
-        />
-      </GestureDetector>
+      <Canvas
+        ref={ref}
+        transparent={true}
+        style={{ flex: 1, maxHeight: 450 }}
+      />
     </View>
   );
 }
