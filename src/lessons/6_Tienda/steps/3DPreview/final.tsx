@@ -36,11 +36,8 @@ function Loading() {
 export function Preview() {
   const gltf = useGLTF(require("./assets/shoe/shoe.gltf"));
   const [ready, setReady] = useState(false);
-  const translationX = useRef(0);
-  const translationY = useRef(0);
+  const translation = useRef(0);
   const wasRunning = useRef(false);
-  const scale = useRef(1);
-  const savedScale = useRef(1);
   const clock = useMemo(() => {
     const clock = new THREE.Clock();
     clock.autoStart = false;
@@ -55,8 +52,7 @@ export function Preview() {
       clock.stop();
     })
     .onChange((e) => {
-      translationX.current += e.changeX;
-      translationY.current += e.changeY;
+      translation.current += e.changeX;
     })
     .onEnd(() => {
       if (wasRunning.current) {
@@ -70,19 +66,7 @@ export function Preview() {
       clock.running ? clock.stop() : clock.start();
     });
 
-  const zoomGesture = Gesture.Pinch()
-    .runOnJS(true)
-    .onUpdate((e) => {
-      scale.current = savedScale.current * e.scale;
-    })
-    .onEnd(() => {
-      savedScale.current = scale.current;
-    });
-
-  const gesture = Gesture.Exclusive(
-    Gesture.Simultaneous(zoomGesture, panGesture),
-    tapGesture,
-  );
+  const gesture = Gesture.Exclusive(panGesture, tapGesture);
 
   useEffect(() => {
     if (!gltf || !context) {
@@ -94,7 +78,7 @@ export function Preview() {
     const scene = new THREE.Scene();
     const light = new THREE.DirectionalLight(0xffffff, 3);
 
-    camera.position.set(0, 0, 2);
+    camera.position.set(0, 0.2, 2);
     light.position.set(0, 0.1, 1);
     light.target.position.set(0, 0, 0);
     gltf.scene.position.set(0, -0.1, 0);
@@ -107,47 +91,16 @@ export function Preview() {
 
     let elapsed = 0;
     function animateCamera() {
+      const distance = 2;
       elapsed += clock.getDelta();
 
-      const q1 = new THREE.Quaternion();
-      q1.setFromAxisAngle(
-        new THREE.Vector3(0, 1, 0),
-        elapsed - (Math.PI * translationX.current) / width,
-      );
-
-      const q2 = new THREE.Quaternion();
-      q2.setFromAxisAngle(
-        new THREE.Vector3(1, 0, 0),
-        -(Math.PI * translationY.current) / width,
-      );
-
-      const q3 = q1.multiply(q2);
-
-      const newPos = new THREE.Vector3(
-        0,
-        0.2,
-        2 / scale.current,
-      ).applyQuaternion(q3);
-
-      console.log(newPos);
-
-      camera.position.set(newPos.x, newPos.y, newPos.z);
-
-      console.log(newPos);
-      const cameraUp = new THREE.Vector3(
-        0,
-        0.2 + 2 / scale.current,
-        2 / scale.current - 0.2,
-      ).applyQuaternion(q3);
-      camera.up = new THREE.Vector3(
-        0,
-        Math.sign(cameraUp.y - camera.position.y),
-        0,
-      );
+      camera.position.x =
+        Math.sin(elapsed - (Math.PI * translation.current) / width) * distance;
+      camera.position.z =
+        Math.cos(elapsed - (Math.PI * translation.current) / width) * distance;
       camera.lookAt(new THREE.Vector3(0, 0, 0));
 
       light.position.x = camera.position.x;
-      light.position.y = camera.position.y;
       light.position.z = camera.position.z;
       light.target.position.set(0, 0, 0);
     }
