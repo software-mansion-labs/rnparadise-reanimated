@@ -111,9 +111,59 @@ function Gallery() {
 }
 
 function Details() {
+  const [dimenstions, setDimensions] = useState<any>();
   return (
     <View style={styles.content}>
-      <View style={styles.popular}>
+      <View
+        style={{
+          width: dimenstions.width + 2,
+          height: dimenstions.height + 2,
+          transform: [{ translateX: -1 }, { translateY: -1 }],
+          position: "absolute",
+          overflow: "hidden",
+        }}
+      >
+        <Animated.View
+          style={{
+            width: 20,
+            height: 20,
+            backgroundColor: "#0f172a",
+            position: "absolute",
+
+            animationName: {
+              "0%": { transform: [{ translateX: 0 }, { translateY: 0 }] },
+              "25%": {
+                transform: [
+                  { translateX: dimenstions.width },
+                  { translateY: 0 },
+                ],
+              },
+              "50%": {
+                transform: [
+                  { translateX: dimenstions.width },
+                  { translateY: dimenstions.height },
+                ],
+              },
+              "75%": {
+                transform: [
+                  { translateX: 0 },
+                  { translateY: dimenstions.height },
+                ],
+              },
+              "100%": { transform: [{ translateX: 0 }, { translateY: 0 }] },
+            },
+            animationDuration: "10s",
+            animationTimingFunction: "ease-in-out",
+            animationIterationCount: "infinite",
+          }}
+        />
+      </View>
+      <View
+        style={[styles.popular]}
+        onLayout={(event) => {
+          setDimensions(event.nativeEvent.layout);
+        }}
+      >
         <EvilIcons name="star" size={16} color="#475569" />
         <Text style={styles.popularText}>
           <Text style={styles.popularTextBold}>Popular</Text>! This item is
@@ -238,15 +288,6 @@ const styles = StyleSheet.create({
     width: Dimensions.get("window").width - 16,
     aspectRatio: 0.8,
   },
-  gradient: {
-    flex: 1,
-    width: "300%",
-    marginHorizontal: "-100%",
-    [process.env.EXPO_OS === "web"
-      ? "backgroundImage"
-      : "experimental_backgroundImage"]:
-      "linear-gradient(100deg, #f0f1f6 46%, #fafafa 50%, #f0f1f6 54%)",
-  },
   price: {
     fontWeight: "bold",
     color: "#374151",
@@ -321,5 +362,19 @@ const styles = StyleSheet.create({
   row: {
     flexDirection: "row",
     justifyContent: "space-between",
+  },
+  shimmerContainer: {
+    width: 180,
+    height: 42,
+    overflow: "hidden",
+  },
+  gradient: {
+    flex: 1,
+    width: "300%",
+    marginHorizontal: "-100%",
+    [process.env.EXPO_OS === "web"
+      ? "backgroundImage"
+      : "experimental_backgroundImage"]:
+      "linear-gradient(100deg, transparent 46%, #fafafa 50%, transparent 54%)",
   },
 });
