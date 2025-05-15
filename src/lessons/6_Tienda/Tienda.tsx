@@ -1,4 +1,4 @@
-import { useLayoutEffect, useRef, useState, type Component } from "react";
+import { useRef, useState } from "react";
 import {
   StyleSheet,
   View,
@@ -11,9 +11,6 @@ import {
 } from "react-native";
 import Animated from "react-native-reanimated";
 import EvilIcons from "@expo/vector-icons/EvilIcons";
-import FontAwesome from "@expo/vector-icons/FontAwesome";
-import MaterialIcons from "@expo/vector-icons/MaterialIcons";
-import Entypo from "@expo/vector-icons/Entypo";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 const AnimatedPressable = Animated.createAnimatedComponent(Pressable);
@@ -116,10 +113,15 @@ function Gallery() {
 function Details() {
   return (
     <View style={styles.content}>
+      <View style={styles.popular}>
+        <EvilIcons name="star" size={16} color="#475569" />
+        <Text style={styles.popularText}>
+          <Text style={styles.popularTextBold}>Popular</Text>! This item is
+          trending now.
+        </Text>
+      </View>
       <Text style={styles.name}>Nike Air Max 1/97</Text>
-      <Text style={styles.secondLine}>
-        Sean Wotherspoon (Extra Lace Set Only)
-      </Text>
+      <Text style={styles.secondLine}>Sean Wotherspoon</Text>
       <Text style={styles.price}>$1955</Text>
     </View>
   );
@@ -208,9 +210,9 @@ const styles = StyleSheet.create({
     fontSize: 20,
     flexDirection: "row",
     alignItems: "center",
-    color: "#64748b",
+    color: "#d4d4d8",
     borderWidth: StyleSheet.hairlineWidth,
-    borderColor: "#94a3b8",
+    borderColor: "#64748b",
     height: 50,
     flex: 1,
     paddingLeft: 4,
@@ -225,7 +227,7 @@ const styles = StyleSheet.create({
   },
   buttonText: {
     color: "#374151",
-    fontWeight: "bold",
+    fontWeight: "600",
   },
   gallery: {
     flex: 0.75,
@@ -289,6 +291,21 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     gap: 4,
   },
+  popular: {
+    backgroundColor: "#f1f5f9",
+    flexDirection: "row",
+    padding: 6,
+    gap: 4,
+    marginBottom: 12,
+    alignItems: "center",
+  },
+  popularText: {
+    fontSize: 14,
+    color: "#374151",
+  },
+  popularTextBold: {
+    fontWeight: 600,
+  },
   name: {
     fontSize: 18,
     fontWeight: "bold",
@@ -298,7 +315,8 @@ const styles = StyleSheet.create({
   secondLine: {
     fontSize: 16,
     color: "#64748b",
-    marginBottom: 8,
+    marginBottom: 12,
+    fontFamily: "Menlo",
   },
   row: {
     flexDirection: "row",
