@@ -165,7 +165,7 @@ function Details() {
   );
 }
 
-function SelectSizeButton({ onPress }: { onPress: () => void }) {
+function SelectSizeButton() {
   const [pressed, setPressed] = useState(false);
 
   return (
@@ -173,25 +173,16 @@ function SelectSizeButton({ onPress }: { onPress: () => void }) {
       onPressIn={() => setPressed(true)}
       onPressOut={() => {
         setPressed(false);
-        onPress();
       }}
     >
       <View style={styles.selectSizeButton}>
         <Text style={styles.selectSizeButtonText}>Select Size</Text>
         <Animated.View
           style={{
-            animationDuration: 150,
-            animationTimingFunction: "ease-in",
-            animationFillMode: "forwards",
-            animationName: pressed
-              ? {
-                  "0%": { transform: [{ translateX: 0 }] },
-                  "100%": { transform: [{ translateX: 6 }] },
-                }
-              : {
-                  "0%": { transform: [{ translateX: 6 }] },
-                  "100%": { transform: [{ translateX: 0 }] },
-                },
+            transitionDuration: 150,
+            transitionTimingFunction: "ease-in",
+            transitionProperty: "transform",
+            transform: [{ translateX: pressed ? 6 : 0 }],
           }}
         >
           <Octicons name="arrow-right" size={24} color="white" />
@@ -201,22 +192,13 @@ function SelectSizeButton({ onPress }: { onPress: () => void }) {
         style={[
           styles.buttonBackground,
           {
-            animationDuration: 150,
-            animationTimingFunction: "ease-in",
-            animationFillMode: "forwards",
-            animationName: pressed
-              ? {
-                  "0%": { transform: [{ translateY: -34 }, { translateX: 4 }] },
-                  "100%": {
-                    transform: [{ translateY: -38 }, { translateX: 0 }],
-                  },
-                }
-              : {
-                  "0%": { transform: [{ translateY: -38 }, { translateX: 0 }] },
-                  "100%": {
-                    transform: [{ translateY: -34 }, { translateX: 4 }],
-                  },
-                },
+            transitionDuration: 150,
+            transitionTimingFunction: "ease-in",
+            transitionProperty: "transform",
+            transform: [
+              { translateX: pressed ? 0 : 4 },
+              { translateY: pressed ? -38 : -34 },
+            ],
           },
         ]}
       />
@@ -233,7 +215,7 @@ export function Tienda() {
       <Gallery />
       <Details />
       <View style={[styles.sheet, { paddingBottom: insets.bottom }]}>
-        <SelectSizeButton onPress={() => {}} />
+        <SelectSizeButton />
       </View>
     </View>
   );
