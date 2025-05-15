@@ -140,7 +140,7 @@ function Details() {
               "0%": { transform: [{ rotateZ: "0deg" }] },
               "100%": { transform: [{ rotateZ: "360deg" }] },
             },
-            animationDuration: "6s",
+            animationDuration: "4s",
             animationTimingFunction: "linear",
             animationIterationCount: "infinite",
           }}
@@ -152,7 +152,24 @@ function Details() {
           setDimensions(event.nativeEvent.layout);
         }}
       >
-        <EvilIcons name="star" size={16} color="#475569" />
+        <Animated.View
+          style={{
+            animationName: {
+              "0%": { transform: [{ rotate: "0deg" }] },
+              "15%": { transform: [{ rotate: "7deg" }] },
+              "20%": { transform: [{ rotate: "-10deg" }] },
+              "25%": { transform: [{ rotate: "10deg" }] },
+              "35%": { transform: [{ rotate: "-7deg" }] },
+              "40%": { transform: [{ rotate: "0deg" }] },
+              "100%": { transform: [{ rotate: "0deg" }] },
+            },
+            animationDuration: "2.5s",
+            animationIterationCount: "infinite",
+            animationTimingFunction: "ease-in-out",
+          }}
+        >
+          <EvilIcons name="star" size={16} color="#475569" />
+        </Animated.View>
         <Text style={styles.popularText}>
           <Text style={styles.popularTextBold}>Popular</Text>! This item is
           trending now.
