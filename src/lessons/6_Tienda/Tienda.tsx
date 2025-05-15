@@ -11,6 +11,7 @@ import {
 } from "react-native";
 import Animated from "react-native-reanimated";
 import EvilIcons from "@expo/vector-icons/EvilIcons";
+import Octicons from "@expo/vector-icons/Octicons";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 const AnimatedPressable = Animated.createAnimatedComponent(Pressable);
@@ -58,7 +59,7 @@ function Header() {
       </Animated.View>
       <View style={styles.searchBarWrapper}>
         <View style={styles.searchBar}>
-          <EvilIcons name="search" size={24} color="black" />
+          <EvilIcons name="search" size={24} color="#64748b" />
           <TextInput
             ref={inputRef}
             placeholder="Search"
@@ -175,33 +176,50 @@ function SelectSizeButton({ onPress }: { onPress: () => void }) {
         onPress();
       }}
     >
+      <View style={styles.selectSizeButton}>
+        <Text style={styles.selectSizeButtonText}>Select Size</Text>
+        <Animated.View
+          style={{
+            animationDuration: 150,
+            animationTimingFunction: "ease-in",
+            animationFillMode: "forwards",
+            animationName: pressed
+              ? {
+                  "0%": { transform: [{ translateX: 0 }] },
+                  "100%": { transform: [{ translateX: 6 }] },
+                }
+              : {
+                  "0%": { transform: [{ translateX: 6 }] },
+                  "100%": { transform: [{ translateX: 0 }] },
+                },
+          }}
+        >
+          <Octicons name="arrow-right" size={24} color="white" />
+        </Animated.View>
+      </View>
       <Animated.View
         style={[
-          styles.selectSizeButton,
-          pressed
-            ? {
-                animationDuration: 120,
-                animationTimingFunction: "ease-in",
-                animationFillMode: "forwards",
-                animationName: {
-                  "0%": { transform: [{ translateY: 0 }] },
-                  "100%": { transform: [{ translateY: 6 }] },
+          styles.buttonBackground,
+          {
+            animationDuration: 150,
+            animationTimingFunction: "ease-in",
+            animationFillMode: "forwards",
+            animationName: pressed
+              ? {
+                  "0%": { transform: [{ translateY: -34 }, { translateX: 4 }] },
+                  "100%": {
+                    transform: [{ translateY: -38 }, { translateX: 0 }],
+                  },
+                }
+              : {
+                  "0%": { transform: [{ translateY: -38 }, { translateX: 0 }] },
+                  "100%": {
+                    transform: [{ translateY: -34 }, { translateX: 4 }],
+                  },
                 },
-              }
-            : {
-                animationDuration: 120,
-                animationTimingFunction: "ease-out",
-                animationFillMode: "forwards",
-                animationName: {
-                  "0%": { transform: [{ translateY: 6 }] },
-                  "100%": { transform: [{ translateY: 0 }] },
-                },
-              },
+          },
         ]}
-      >
-        <Text style={styles.selectSizeButtonText}>Select Size</Text>
-      </Animated.View>
-      <Animated.View style={styles.buttonBackground} />
+      />
     </Pressable>
   );
 }
@@ -296,12 +314,15 @@ const styles = StyleSheet.create({
   selectSizeButton: {
     backgroundColor: "#0f172a",
     padding: 10,
+    paddingRight: 16,
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
   },
   buttonBackground: {
     borderWidth: StyleSheet.hairlineWidth,
     borderColor: "#0f172a",
     height: 38,
-    transform: [{ translateY: -34 }, { translateX: 4 }],
     zIndex: -1,
   },
   selectSizeButtonText: {
