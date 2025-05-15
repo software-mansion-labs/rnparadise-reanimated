@@ -111,7 +111,10 @@ function Gallery() {
 }
 
 function Details() {
-  const [dimenstions, setDimensions] = useState<any>();
+  const [dimenstions, setDimensions] = useState<any>({
+    width: 0,
+    height: 0,
+  });
   return (
     <View style={styles.content}>
       <View
@@ -140,14 +143,14 @@ function Details() {
               },
               "50%": {
                 transform: [
-                  { translateX: dimenstions.width },
-                  { translateY: dimenstions.height },
+                  { translateX: dimenstions?.width },
+                  { translateY: dimenstions?.height },
                 ],
               },
               "75%": {
                 transform: [
                   { translateX: 0 },
-                  { translateY: dimenstions.height },
+                  { translateY: dimenstions?.height },
                 ],
               },
               "100%": { transform: [{ translateX: 0 }, { translateY: 0 }] },
