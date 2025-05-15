@@ -6,37 +6,25 @@ import {
   TextInput,
   Pressable,
   Dimensions,
+  Image,
+  FlatList,
 } from "react-native";
-import Animated, {
-  FadeIn,
-  FadeInRight,
-  FadeInUp,
-  interpolate,
-  measure,
-  runOnJS,
-  runOnUI,
-  useAnimatedRef,
-  useAnimatedStyle,
-  useSharedValue,
-  withSpring,
-  type AnimatedRef,
-} from "react-native-reanimated";
+import Animated from "react-native-reanimated";
 import EvilIcons from "@expo/vector-icons/EvilIcons";
 import FontAwesome from "@expo/vector-icons/FontAwesome";
-import { Preview } from "@/lessons/6_Tienda/3DPreview";
 import MaterialIcons from "@expo/vector-icons/MaterialIcons";
 import Entypo from "@expo/vector-icons/Entypo";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 const AnimatedPressable = Animated.createAnimatedComponent(Pressable);
 
-function Header({
-  counter,
-  cartRef,
-}: {
-  counter: number;
-  cartRef: AnimatedRef<Component>;
-}) {
+const gallery = [
+  "https://images.pexels.com/photos/2529148/pexels-photo-2529148.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1",
+  "https://images.pexels.com/photos/2529147/pexels-photo-2529147.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1",
+  "https://images.pexels.com/photos/2529146/pexels-photo-2529146.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1",
+];
+
+function Header() {
   const [isFocused, setFocus] = useState(false);
   const [headerHeight, setHeaderHeight] = useState<number | undefined>(
     undefined,
@@ -56,6 +44,9 @@ function Header({
         style={[
           styles.header,
           {
+            transitionProperty: ["opacity", "marginTop"],
+            transitionDuration: 200,
+            transitionTimingFunction: "ease-in-out",
             opacity: isFocused ? 0 : 1,
             marginTop: isFocused ? -headerHeight! : 0,
           },
@@ -67,15 +58,6 @@ function Header({
         }}
       >
         <Text style={styles.headerText}>tienda</Text>
-        <Animated.View style={styles.cart} ref={cartRef}>
-          <FontAwesome name="shopping-cart" size={16} color="#450a0a" />
-
-          {counter > 0 && (
-            <Animated.View style={styles.counter}>
-              <Text style={styles.counterText}>{counter}</Text>
-            </Animated.View>
-          )}
-        </Animated.View>
       </Animated.View>
       <View style={styles.searchBarWrapper}>
         <View style={styles.searchBar}>
@@ -94,6 +76,9 @@ function Header({
           style={[
             styles.button,
             {
+              transitionProperty: ["width", "marginLeft"],
+              transitionDuration: 200,
+              transitionTimingFunction: "ease-in-out",
               width: isFocused ? 50 : 0,
               marginLeft: isFocused ? 8 : 0,
             },
@@ -112,41 +97,70 @@ function Header({
   );
 }
 
-function Details() {
+function Gallery() {
   return (
-    <View style={styles.content}>
-      <Text style={styles.price}>$220.99</Text>
-      <View style={styles.row}>
-        <Text style={styles.name}>Nike Roshe Run</Text>
-        <View style={styles.priceRow}>
-          {new Array(5).fill(null).map((_, i) => (
-            <Animated.View key={i}>
-              <Entypo name="star" size={14} color="#fbbf24" />
-            </Animated.View>
-          ))}
-          <Animated.Text>4.97</Animated.Text>
-        </View>
-      </View>
-      <View style={styles.shippingRow}>
-        <MaterialIcons name="local-shipping" size={16} color="#15803d" />
-        <Text style={styles.shipping}>Free shipping</Text>
-      </View>
-      <View style={styles.shippingTo}>
-        <Text style={styles.shippingToText}>Shipping to Tenerife</Text>
-      </View>
+    <View style={styles.gallery}>
+      <FlatList
+        data={gallery}
+        renderItem={({ item }) => (
+          <Image source={{ uri: item }} style={styles.image} />
+        )}
+        keyExtractor={(item) => item}
+        horizontal
+        showsHorizontalScrollIndicator={false}
+      />
     </View>
   );
 }
 
-function BuyButton({ onPress }: { onPress: () => void }) {
+function Details() {
+  return (
+    <View style={styles.content}>
+      <Text style={styles.name}>Nike Air Max 1/97</Text>
+      <Text style={styles.secondLine}>
+        Sean Wotherspoon (Extra Lace Set Only)
+      </Text>
+      <Text style={styles.price}>$1955</Text>
+    </View>
+  );
+}
+
+function SelectSizeButton({ onPress }: { onPress: () => void }) {
+  const [pressed, setPressed] = useState(false);
+
   return (
     <Pressable
+      onPressIn={() => setPressed(true)}
       onPressOut={() => {
+        setPressed(false);
         onPress();
       }}
     >
-      <Animated.View style={styles.buyButton}>
-        <Text style={styles.buyButtonText}>Buy</Text>
+      <Animated.View
+        style={[
+          styles.selectSizeButton,
+          pressed
+            ? {
+                animationDuration: 120,
+                animationTimingFunction: "ease-in",
+                animationFillMode: "forwards",
+                animationName: {
+                  "0%": { transform: [{ translateY: 0 }] },
+                  "100%": { transform: [{ translateY: 6 }] },
+                },
+              }
+            : {
+                animationDuration: 120,
+                animationTimingFunction: "ease-out",
+                animationFillMode: "forwards",
+                animationName: {
+                  "0%": { transform: [{ translateY: 6 }] },
+                  "100%": { transform: [{ translateY: 0 }] },
+                },
+              },
+        ]}
+      >
+        <Text style={styles.selectSizeButtonText}>Select Size</Text>
       </Animated.View>
       <Animated.View style={styles.buttonBackground} />
     </Pressable>
@@ -154,26 +168,19 @@ function BuyButton({ onPress }: { onPress: () => void }) {
 }
 
 export function Tienda() {
-  const cartRef = useAnimatedRef();
   const insets = useSafeAreaInsets();
-  const [counter, setCounter] = useState(0);
-
-  const incrementCart = () => {
-    setCounter(counter + 1);
-  };
 
   return (
     <View style={[styles.container, { paddingTop: insets.top }]}>
-      <Header counter={counter} cartRef={cartRef} />
-      <Preview />
+      <Header />
+      <Gallery />
       <Details />
       <View style={[styles.sheet, { paddingBottom: insets.bottom }]}>
-        <BuyButton onPress={incrementCart} />
+        <SelectSizeButton onPress={() => {}} />
       </View>
     </View>
   );
 }
-
 const styles = StyleSheet.create({
   container: {
     flex: 1,
@@ -186,19 +193,11 @@ const styles = StyleSheet.create({
     gap: 6,
     marginHorizontal: 8,
   },
-  cart: {
-    width: 28,
-    height: 28,
-    borderRadius: 14,
-    backgroundColor: "#f0f1f6",
-    justifyContent: "center",
-    alignItems: "center",
-  },
   headerText: {
     fontSize: 36,
     fontWeight: "bold",
     fontFamily: "Menlo",
-    color: "#7f1d1d",
+    color: "#020617",
   },
   searchBarWrapper: {
     flexDirection: "row",
@@ -210,10 +209,10 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     color: "#64748b",
-    backgroundColor: "#f0f1f6",
+    borderWidth: StyleSheet.hairlineWidth,
+    borderColor: "#94a3b8",
     height: 50,
     flex: 1,
-    borderRadius: 12,
     paddingLeft: 4,
     gap: 10,
   },
@@ -225,16 +224,17 @@ const styles = StyleSheet.create({
     justifyContent: "center",
   },
   buttonText: {
-    color: "#3b82f6",
+    color: "#374151",
     fontWeight: "bold",
   },
-  skeleton: {
+  gallery: {
+    flex: 0.75,
+    marginBottom: 8,
+  },
+  image: {
     margin: 8,
     width: Dimensions.get("window").width - 16,
     aspectRatio: 0.8,
-    borderCurve: "continuous",
-    borderRadius: 12,
-    overflow: "hidden",
   },
   gradient: {
     flex: 1,
@@ -246,6 +246,8 @@ const styles = StyleSheet.create({
       "linear-gradient(100deg, #f0f1f6 46%, #fafafa 50%, #f0f1f6 54%)",
   },
   price: {
+    fontWeight: "bold",
+    color: "#374151",
     fontSize: 22,
   },
   content: {
@@ -255,56 +257,31 @@ const styles = StyleSheet.create({
   sheet: {
     height: 100,
     width: "100%",
-    backgroundColor: "#f0f1f6",
     position: "absolute",
     zIndex: 100,
     bottom: 0,
     paddingTop: 10,
     paddingHorizontal: 8,
   },
-  buyButton: {
-    backgroundColor: "rgb(208, 49, 49)",
-    padding: 8,
-    borderRadius: 8,
+  selectSizeButton: {
+    backgroundColor: "#0f172a",
+    padding: 10,
   },
   buttonBackground: {
-    backgroundColor: "rgb(165, 41, 41)",
-    borderRadius: 8,
-    height: 40,
-    transform: [{ translateY: -32 }],
+    borderWidth: StyleSheet.hairlineWidth,
+    borderColor: "#0f172a",
+    height: 38,
+    transform: [{ translateY: -34 }, { translateX: 4 }],
     zIndex: -1,
   },
-  buyButtonText: {
+  selectSizeButtonText: {
     color: "white",
-    fontSize: 22,
-    textAlign: "center",
-    fontWeight: "bold",
-  },
-  dot: {
-    width: 14,
-    height: 14,
-    borderRadius: 7,
-    backgroundColor: "rgb(208, 49, 49)",
-    position: "absolute",
-    zIndex: 5,
-    left: "53%",
-    bottom: 10,
-  },
-  counter: {
-    position: "absolute",
-    top: -8,
-    left: -8,
-    backgroundColor: "rgb(208, 49, 49)",
-    borderRadius: 8,
-    width: 18,
-    height: 18,
-    alignItems: "center",
-    justifyContent: "center",
-  },
-  counterText: {
-    color: "white",
-    fontSize: 11,
+    fontSize: 18,
+    // textAlign: "center",
     fontFamily: "Menlo",
+    fontWeight: "bold",
+    textTransform: "uppercase",
+    letterSpacing: 1.5,
   },
   priceRow: {
     flexDirection: "row",
@@ -313,24 +290,15 @@ const styles = StyleSheet.create({
     gap: 4,
   },
   name: {
+    fontSize: 18,
     fontWeight: "bold",
+    fontFamily: "Menlo",
+    textTransform: "uppercase",
   },
-  shippingRow: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 4,
-  },
-  shipping: {
+  secondLine: {
     fontSize: 16,
-    color: "#15803d",
-  },
-  shippingTo: {
-    borderRadius: 6,
-    padding: 3,
-    backgroundColor: "#ecfdf5",
-  },
-  shippingToText: {
-    color: "#15803d",
+    color: "#64748b",
+    marginBottom: 8,
   },
   row: {
     flexDirection: "row",
