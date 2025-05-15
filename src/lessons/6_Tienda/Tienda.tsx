@@ -111,7 +111,7 @@ function Gallery() {
 }
 
 function Details() {
-  const [dimenstions, setDimensions] = useState<any>({
+  const [dimenstions, setDimensions] = useState({
     width: 0,
     height: 0,
   });
@@ -124,39 +124,23 @@ function Details() {
           transform: [{ translateX: -1 }, { translateY: -1 }],
           position: "absolute",
           overflow: "hidden",
+          alignItems: "center",
         }}
       >
         <Animated.View
           style={{
             width: 20,
-            height: 20,
+            height: dimenstions.width / 2 + 2,
+            transformOrigin: "10px 0",
             backgroundColor: "#0f172a",
-            position: "absolute",
+            top: dimenstions.height / 2,
 
             animationName: {
-              "0%": { transform: [{ translateX: 0 }, { translateY: 0 }] },
-              "25%": {
-                transform: [
-                  { translateX: dimenstions.width },
-                  { translateY: 0 },
-                ],
-              },
-              "50%": {
-                transform: [
-                  { translateX: dimenstions?.width },
-                  { translateY: dimenstions?.height },
-                ],
-              },
-              "75%": {
-                transform: [
-                  { translateX: 0 },
-                  { translateY: dimenstions?.height },
-                ],
-              },
-              "100%": { transform: [{ translateX: 0 }, { translateY: 0 }] },
+              "0%": { transform: [{ rotateZ: "0deg" }] },
+              "100%": { transform: [{ rotateZ: "360deg" }] },
             },
-            animationDuration: "10s",
-            animationTimingFunction: "ease-in-out",
+            animationDuration: "6s",
+            animationTimingFunction: "linear",
             animationIterationCount: "infinite",
           }}
         />
