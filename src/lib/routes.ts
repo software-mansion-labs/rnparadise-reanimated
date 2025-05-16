@@ -35,4 +35,9 @@ export const routes: RouteMeta[] = [
     title: "Tienda 👉",
     subtitle: "Lesson 6",
   },
+  {
+    href: "ReorderApps",
+    title: "Reorder Apps 👉",
+    subtitle: "Lesson 7",
+  },
 ];
