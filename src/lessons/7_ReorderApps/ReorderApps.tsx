@@ -1,13 +1,10 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { StyleSheet, View, Text, Dimensions, Image } from "react-native";
 import { Gesture, GestureDetector } from "react-native-gesture-handler";
 import Animated, {
-  BounceIn,
-  Easing,
   LinearTransition,
   runOnJS,
   useAnimatedStyle,
-  useDerivedValue,
   useSharedValue,
   withTiming,
 } from "react-native-reanimated";
@@ -38,18 +35,14 @@ export function ReorderApps() {
   const [activeItemId, setActiveItemId] = useState(null);
   const [placeholderIndex, setPlaceholderIndex] = useState<number | null>(null);
 
-  useEffect(() => {
-    if (placeholderIndex === null) {
-      return;
-    }
+  // const fn = () => {
+  //   const newItems = [...items];
 
-    const newItems = [...items];
-
-    // filter out all the previous placeholder items
-    const filtered = newItems.filter((item) => item.id !== "placeholder");
-    filtered.splice(placeholderIndex, 0, placeholder);
-    setItems(filtered);
-  }, [placeholderIndex]);
+  //   // filter out all the previous placeholder items
+  //   const filtered = newItems.filter((item) => item.id !== "placeholder");
+  //   filtered.splice(placeholderIndex!, 0, placeholder);
+  //   setItems(filtered);
+  // };
 
   const getActiveItem = () => {
     return data.find((item) => item.id === activeItemId);
@@ -68,6 +61,9 @@ export function ReorderApps() {
     // insert current item to the placeholder index
     noCurrentItem.splice(placeholderIndex!, 0, currentItem!);
     setItems(noCurrentItem);
+
+    setActiveItemId(null);
+    setPlaceholderIndex(null);
   };
 
   return (
@@ -104,9 +100,9 @@ export function ReorderApps() {
 function Draggable({
   children,
   id,
+  setActiveItemId,
   setPlaceholderIndex,
   reorderItems,
-  setActiveItemId,
   index,
 }: any) {
   const [tileDimension, setDimenstions] = useState<any>();
@@ -139,9 +135,6 @@ function Draggable({
     })
     .onFinalize(() => {
       pressed.value = false;
-      runOnJS(setActiveItemId)(null);
-      runOnJS(setPlaceholderIndex)(null);
-
       runOnJS(reorderItems)();
       offsetX.value = 0;
       offsetY.value = 0;
