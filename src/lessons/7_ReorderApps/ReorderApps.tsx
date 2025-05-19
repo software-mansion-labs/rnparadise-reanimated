@@ -43,34 +43,11 @@ export function ReorderApps() {
       return;
     }
 
-    const currentItem = getActiveItem();
-    const previousIndex = items.findIndex((item) => item.id === activeItemId);
-
     const newItems = [...items];
 
     // filter out all the previous placeholder items
     const filtered = newItems.filter((item) => item.id !== "placeholder");
-
-    // filtered.splice(previousIndex, 1);
-
-    // if (previousIndex !== placeholderIndex) {
-    // put placeholder at the current index
     filtered.splice(placeholderIndex, 0, placeholder);
-    // }
-
-    // filtered.push(currentItem);
-
-    // // add emtpy item to the placeholder index
-    // if (activeIndex !== null) {
-    //   filtered.splice(activeIndex, 1);
-    // }
-
-    // const activeItem = data.find((item) => item.id === activeIndex);
-    // if (activeItem) {
-    //   filtered.push(activeItem);
-    // }
-    // // filtered.splice(activeElementId.value, 1);
-    // filtered.splice(placeholderIndex, 0, null);
     setItems(filtered);
   }, [placeholderIndex]);
 
@@ -79,16 +56,18 @@ export function ReorderApps() {
   };
 
   const reorderItems = () => {
-    // const currentItem = getActiveItem();
-    // const currentIndex = items.findIndex((item) => item.id === activeItemId);
+    const currentItem = getActiveItem();
     const newItems = [...items];
+
     // filter out all placeholder items
-    const filtered = newItems.filter((item) => item.id !== "placeholder");
-    // // remove current item from the current index to avoid duplicates
-    // filtered.splice(currentIndex, 1);
-    // // insert current item to the placeholder index
-    // filtered.splice(placeholderIndex!, 0, currentItem!);
-    setItems(filtered);
+    const noPlaceholder = newItems.filter((item) => item.id !== "placeholder");
+    // remove current item to avoid duplicates
+    const noCurrentItem = noPlaceholder.filter(
+      (item) => item.id !== currentItem?.id,
+    );
+    // insert current item to the placeholder index
+    noCurrentItem.splice(placeholderIndex!, 0, currentItem!);
+    setItems(noCurrentItem);
   };
 
   return (
@@ -98,12 +77,7 @@ export function ReorderApps() {
           app.id == "placeholder" ? (
             <View
               key={app.id}
-              style={{
-                width: TILE_SIZE,
-                height: TILE_SIZE,
-                backgroundColor: "rgba(255, 255, 255, 0.5)",
-                borderRadius: 10,
-              }}
+              style={{ width: TILE_SIZE, height: TILE_SIZE }}
             />
           ) : (
             <Draggable
