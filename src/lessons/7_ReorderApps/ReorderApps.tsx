@@ -2,7 +2,9 @@ import { useEffect, useState } from "react";
 import { StyleSheet, View, Text, Dimensions, Image } from "react-native";
 import { Gesture, GestureDetector } from "react-native-gesture-handler";
 import Animated, {
+  BounceIn,
   Easing,
+  LinearTransition,
   runOnJS,
   useAnimatedStyle,
   useDerivedValue,
@@ -19,7 +21,7 @@ const TILE_SIZE =
   ITEMS_IN_ROW_COUNT;
 
 const data = new Array(20).fill(0).map((_, i) => ({
-  id: i,
+  id: `App ${i}`,
   name: `App ${i}`,
   image: "https://picsum.photos/64/64",
 }));
@@ -27,7 +29,7 @@ const data = new Array(20).fill(0).map((_, i) => ({
 export function ReorderApps() {
   const insets = useSafeAreaInsets();
   const [items, setItems] = useState(data);
-  const [activeIndex, setActiveIndex] = useState<number | null>(null);
+  const [activeItemId, setActiveItemId] = useState(null);
   const [placeholderIndex, setPlaceholderIndex] = useState<number | null>(null);
   const [tileDimension, setDimenstions] = useState<any>();
 
@@ -54,6 +56,24 @@ export function ReorderApps() {
     // setItems(filtered);
   }, [placeholderIndex, items]);
 
+  const getActiveItem = () => {
+    return data.find((item) => item.id === activeItemId);
+  };
+
+  const reorderItems = () => {
+    const currentItem = getActiveItem();
+    const currentIndex = items.findIndex((item) => item.id === activeItemId);
+    const newItems = [...items];
+
+    // remove current item from the current index to avoid duplicates
+    newItems.splice(currentIndex, 1);
+
+    // insert current item to the placeholder index
+    newItems.splice(placeholderIndex!, 0, currentItem!);
+
+    setItems(newItems);
+  };
+
   return (
     <View style={[styles.background, { paddingTop: insets.top }]}>
       <View style={styles.container}>
@@ -71,10 +91,11 @@ export function ReorderApps() {
             <Draggable
               key={app.id}
               id={app.id}
-              setActiveIndex={setActiveIndex}
+              setActiveItemId={setActiveItemId}
               setPlaceholderIndex={setPlaceholderIndex}
               setItems={setItems}
               tileDimension={tileDimension}
+              reorderItems={reorderItems}
               onLayout={(e) => setDimenstions(e.nativeEvent.layout)}
             >
               <View style={styles.appContainer}>
@@ -91,12 +112,12 @@ export function ReorderApps() {
 
 function Draggable({
   children,
-  activeElementId,
   id,
   setPlaceholderIndex,
   tileDimension,
   onLayout,
-  setActiveIndex,
+  reorderItems,
+  setActiveItemId,
 }: any) {
   const pressed = useSharedValue(false);
   const offsetX = useSharedValue<number>(0);
@@ -105,7 +126,7 @@ function Draggable({
   const pan = Gesture.Pan()
     .onBegin(() => {
       pressed.value = true;
-      runOnJS(setActiveIndex)(id);
+      runOnJS(setActiveItemId)(id);
     })
     .onChange((e) => {
       offsetX.value += e.changeX;
@@ -125,10 +146,13 @@ function Draggable({
     })
     .onFinalize(() => {
       pressed.value = false;
-      runOnJS(setActiveIndex)(null);
+      runOnJS(setActiveItemId)(null);
       runOnJS(setPlaceholderIndex)(null);
 
       // todod: reorder elements
+      runOnJS(reorderItems)();
+      offsetX.value = 0;
+      offsetY.value = 0;
     });
 
   const animatedStyle = useAnimatedStyle(() => ({
@@ -147,7 +171,11 @@ function Draggable({
 
   return (
     <GestureDetector gesture={pan}>
-      <Animated.View style={animatedStyle} onLayout={onLayout}>
+      <Animated.View
+        style={animatedStyle}
+        onLayout={onLayout}
+        layout={LinearTransition}
+      >
         {children}
       </Animated.View>
     </GestureDetector>
