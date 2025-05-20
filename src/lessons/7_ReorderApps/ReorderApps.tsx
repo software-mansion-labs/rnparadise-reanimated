@@ -2,12 +2,9 @@ import { useEffect, useState } from "react";
 import { StyleSheet, View, Text, Dimensions, Image } from "react-native";
 import { Gesture, GestureDetector } from "react-native-gesture-handler";
 import Animated, {
-  BounceIn,
-  Easing,
   LinearTransition,
   runOnJS,
   useAnimatedStyle,
-  useDerivedValue,
   useSharedValue,
   withTiming,
 } from "react-native-reanimated";
@@ -19,12 +16,6 @@ const GAP = 16;
 const TILE_SIZE =
   (Dimensions.get("screen").width - (ITEMS_IN_ROW_COUNT + 1) * GAP) /
   ITEMS_IN_ROW_COUNT;
-
-const placeholder = {
-  id: "placeholder",
-  name: "",
-  image: "",
-};
 
 const data = new Array(20).fill(0).map((_, i) => ({
   id: `App ${i}`,
@@ -111,6 +102,10 @@ function Draggable({
   index,
 }: any) {
   const [tileDimension, setDimenstions] = useState<any>();
+  const initialPosition = useSharedValue<any>({ column: null, row: null });
+
+  const column = useSharedValue<number | null>(null);
+  const row = useSharedValue<number | null>(null);
 
   const pressed = useSharedValue(false);
   const offsetX = useSharedValue<number>(0);
@@ -122,20 +117,25 @@ function Draggable({
       activeItemId.value = id;
     })
     .onChange((e) => {
-      offsetX.value += e.changeX;
-      offsetY.value += e.changeY;
+      column.value = Math.floor(e.absoluteX / (tileDimension?.width + GAP));
+      row.value = Math.floor(e.absoluteY / (tileDimension?.height + GAP));
 
-      const currentRow = Math.floor(e.absoluteX / (tileDimension?.width + GAP));
-      const currentColumn = Math.floor(
-        e.absoluteY / (tileDimension?.height + GAP),
-      );
+      if (initialPosition.value.column === null) {
+        initialPosition.value = {
+          row,
+          column,
+        };
+      }
 
       const newPlaceholderIndex = Math.min(
-        currentRow + currentColumn * ITEMS_IN_ROW_COUNT,
+        column.value + row.value * ITEMS_IN_ROW_COUNT,
         data.length,
       );
 
       runOnJS(setPlaceholderIndex)(newPlaceholderIndex);
+
+      offsetX.value += e.changeX;
+      offsetY.value += e.changeY;
     })
     .onFinalize(() => {
       pressed.value = false;
@@ -144,6 +144,9 @@ function Draggable({
 
       offsetX.value = 0;
       offsetY.value = 0;
+      initialPosition.value = { column: null, row: null };
+      column.value = null;
+      row.value = null;
     });
 
   const animatedStyle = useAnimatedStyle(() => ({
@@ -153,26 +156,32 @@ function Draggable({
           duration: 150,
         }),
       },
-      { translateX: offsetX.value },
-      { translateY: offsetY.value },
+      {
+        translateX:
+          offsetX.value -
+          initialPosition.value.column -
+          column.value * tileDimension?.width,
+      },
+      {
+        translateY:
+          offsetY.value -
+          initialPosition.value.row -
+          row.value * tileDimension?.height,
+      },
     ],
     zIndex: pressed.value ? 1 : 0,
   }));
 
   return (
-    <View
-      style={{ width: tileDimension?.width, height: tileDimension?.height }}
-    >
-      <GestureDetector gesture={pan}>
-        <Animated.View
-          style={animatedStyle}
-          onLayout={(e) => setDimenstions(e.nativeEvent.layout)}
-          layout={LinearTransition}
-        >
-          {children}
-        </Animated.View>
-      </GestureDetector>
-    </View>
+    <GestureDetector gesture={pan}>
+      <Animated.View
+        style={animatedStyle}
+        onLayout={(e) => setDimenstions(e.nativeEvent.layout)}
+        layout={LinearTransition}
+      >
+        {children}
+      </Animated.View>
+    </GestureDetector>
   );
 }
 const styles = StyleSheet.create({
@@ -196,7 +205,8 @@ const styles = StyleSheet.create({
   appIcon: {
     width: TILE_SIZE,
     aspectRatio: 1,
-    borderRadius: 10,
+    borderRadius: 20,
+    borderCurve: "continuous",
     marginBottom: 2,
   },
   appName: { fontSize: 14, color: "#fff" },
