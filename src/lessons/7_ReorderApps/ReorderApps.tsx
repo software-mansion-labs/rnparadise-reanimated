@@ -65,6 +65,10 @@ export function ReorderApps() {
             setItems={setItems}
             reorderItems={reorderItems}
             index={index}
+            initialPosition={{
+              column: index % ITEMS_IN_ROW_COUNT,
+              row: Math.floor(index / ITEMS_IN_ROW_COUNT),
+            }}
           >
             <View style={styles.appContainer}>
               <Image source={{ uri: app.image }} style={styles.appIcon} />
@@ -88,10 +92,9 @@ function Draggable({
   setPlaceholderIndex,
   reorderItems,
   activeItemId,
+  initialPosition,
 }: any) {
   const [tileDimension, setDimenstions] = useState<any>();
-
-  const initialPosition = useSharedValue<Position | null>(null);
   const currentPosition = useSharedValue<Position | null>(null);
 
   const pressed = useSharedValue(false);
@@ -106,13 +109,6 @@ function Draggable({
     .onChange((e) => {
       const column = Math.floor(e.absoluteX / (tileDimension?.width + GAP));
       const row = Math.floor(e.absoluteY / (tileDimension?.height + GAP));
-
-      if (initialPosition.value === null) {
-        initialPosition.value = {
-          column,
-          row,
-        };
-      }
 
       const newPlaceholderIndex = Math.min(
         column + row * ITEMS_IN_ROW_COUNT,
@@ -138,31 +134,23 @@ function Draggable({
       offsetY.value = 0;
       activeItemId.value = null;
       runOnJS(setPlaceholderIndex)(null);
-      initialPosition.value = null;
       currentPosition.value = null;
     });
 
   const animatedStyle = useAnimatedStyle(() => {
     const adjustX = withTiming(
-      initialPosition.value && currentPosition.value
-        ? (initialPosition.value.column - currentPosition.value.column) *
+      currentPosition.value
+        ? (initialPosition.column - currentPosition.value.column) *
             tileDimension?.width
         : 0,
     );
     const adjustY = withTiming(
-      initialPosition.value && currentPosition.value
-        ? (initialPosition.value.row - currentPosition.value.row) *
+      currentPosition.value
+        ? (initialPosition.row - currentPosition.value.row) *
             tileDimension?.height
         : 0,
     );
 
-    // console.log(
-    //   currentPosition.value?.row,
-    //   initialPosition.value?.row,
-    //   tileDimension?.height,
-    // );
-    // const adjustX = 0;
-    // const adjustY = 0;
     return {
       transform: [
         {
