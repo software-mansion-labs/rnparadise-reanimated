@@ -35,67 +35,52 @@ const data = new Array(20).fill(0).map((_, i) => ({
 export function ReorderApps() {
   const insets = useSafeAreaInsets();
   const [items, setItems] = useState(data);
-  const [activeItemId, setActiveItemId] = useState(null);
+  const activeItemId = useSharedValue<string | null>(null);
   const [placeholderIndex, setPlaceholderIndex] = useState<number | null>(null);
 
-  useEffect(() => {
-    if (placeholderIndex === null) {
-      return;
-    }
-
-    const newItems = [...items];
-
-    // filter out all the previous placeholder items
-    const filtered = newItems.filter((item) => item.id !== "placeholder");
-    filtered.splice(placeholderIndex, 0, placeholder);
-    setItems(filtered);
-  }, [placeholderIndex]);
-
   const getActiveItem = () => {
-    return data.find((item) => item.id === activeItemId);
+    return data.find((item) => item.id === activeItemId.value);
   };
 
   const reorderItems = () => {
+    if (placeholderIndex === null) {
+      return;
+    }
     const currentItem = getActiveItem();
     const newItems = [...items];
 
-    // filter out all placeholder items
-    const noPlaceholder = newItems.filter((item) => item.id !== "placeholder");
-    // remove current item to avoid duplicates
-    const noCurrentItem = noPlaceholder.filter(
-      (item) => item.id !== currentItem?.id,
+    const activeIndex = newItems.findIndex(
+      (item) => item.id === activeItemId.value,
     );
-    // insert current item to the placeholder index
-    noCurrentItem.splice(placeholderIndex!, 0, currentItem!);
-    setItems(noCurrentItem);
+    newItems.splice(activeIndex, 1);
+    newItems.splice(placeholderIndex!, 0, currentItem!);
+
+    setItems(newItems);
+
+    // cleanup
+    activeItemId.value = null;
+    setPlaceholderIndex(null);
   };
 
   return (
     <View style={[styles.background, { paddingTop: insets.top }]}>
       <View style={styles.container}>
-        {items.map((app, index) =>
-          app.id == "placeholder" ? (
-            <View
-              key={app.id}
-              style={{ width: TILE_SIZE, height: TILE_SIZE }}
-            />
-          ) : (
-            <Draggable
-              key={app.id}
-              id={app.id}
-              setActiveItemId={setActiveItemId}
-              setPlaceholderIndex={setPlaceholderIndex}
-              setItems={setItems}
-              reorderItems={reorderItems}
-              index={index}
-            >
-              <View style={styles.appContainer}>
-                <Image source={{ uri: app.image }} style={styles.appIcon} />
-                <Text style={styles.appName}>{app.name}</Text>
-              </View>
-            </Draggable>
-          ),
-        )}
+        {items.map((app, index) => (
+          <Draggable
+            key={app.id}
+            id={app.id}
+            activeItemId={activeItemId}
+            setPlaceholderIndex={setPlaceholderIndex}
+            setItems={setItems}
+            reorderItems={reorderItems}
+            index={index}
+          >
+            <View style={styles.appContainer}>
+              <Image source={{ uri: app.image }} style={styles.appIcon} />
+              <Text style={styles.appName}>{app.name}</Text>
+            </View>
+          </Draggable>
+        ))}
       </View>
     </View>
   );
@@ -106,7 +91,7 @@ function Draggable({
   id,
   setPlaceholderIndex,
   reorderItems,
-  setActiveItemId,
+  activeItemId,
   index,
 }: any) {
   const [tileDimension, setDimenstions] = useState<any>();
@@ -118,8 +103,7 @@ function Draggable({
   const pan = Gesture.Pan()
     .onBegin(() => {
       pressed.value = true;
-      runOnJS(setActiveItemId)(id);
-      runOnJS(setPlaceholderIndex)(index);
+      activeItemId.value = id;
     })
     .onChange((e) => {
       offsetX.value += e.changeX;
@@ -139,10 +123,9 @@ function Draggable({
     })
     .onFinalize(() => {
       pressed.value = false;
-      runOnJS(setActiveItemId)(null);
-      runOnJS(setPlaceholderIndex)(null);
 
       runOnJS(reorderItems)();
+
       offsetX.value = 0;
       offsetY.value = 0;
     });
@@ -158,21 +141,20 @@ function Draggable({
       { translateY: offsetY.value },
     ],
     zIndex: pressed.value ? 1 : 0,
-    position: pressed.value ? "absolute" : "relative",
-    left: pressed.value ? tileDimension?.x : 0,
-    top: pressed.value ? tileDimension?.y : 0,
   }));
 
   return (
-    <GestureDetector gesture={pan}>
-      <Animated.View
-        style={animatedStyle}
-        onLayout={(e) => setDimenstions(e.nativeEvent.layout)}
-        layout={LinearTransition}
-      >
-        {children}
-      </Animated.View>
-    </GestureDetector>
+    <View>
+      <GestureDetector gesture={pan}>
+        <Animated.View
+          style={animatedStyle}
+          onLayout={(e) => setDimenstions(e.nativeEvent.layout)}
+          layout={LinearTransition}
+        >
+          {children}
+        </Animated.View>
+      </GestureDetector>
+    </View>
   );
 }
 const styles = StyleSheet.create({
@@ -187,6 +169,7 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     flexWrap: "wrap",
     gap: GAP,
+    paddingLeft: GAP,
   },
   appContainer: {
     alignItems: "center",
