@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { StyleSheet, View, Text, Dimensions, Image } from "react-native";
 import { Gesture, GestureDetector } from "react-native-gesture-handler";
 import Animated, {
+  CSSAnimationKeyframes,
   LinearTransition,
   runOnJS,
   useAnimatedStyle,
@@ -22,6 +23,30 @@ const data = new Array(20).fill(0).map((_, i) => ({
   name: `App ${i}`,
   image: "https://picsum.photos/64/64",
 }));
+
+const shake: CSSAnimationKeyframes = {
+  from: {
+    transform: [{ rotateZ: "2deg" }],
+  },
+  "15%": {
+    transform: [{ rotateZ: "-2deg" }],
+  },
+  "30%": {
+    transform: [{ rotateZ: "2deg" }],
+  },
+  "45%": {
+    transform: [{ rotateZ: "-2deg" }],
+  },
+  "60%": {
+    transform: [{ rotateZ: "2deg" }],
+  },
+  "75%": {
+    transform: [{ rotateZ: "-2deg" }],
+  },
+  to: {
+    transform: [{ rotateZ: "2deg" }],
+  },
+};
 
 export function ReorderApps() {
   const insets = useSafeAreaInsets();
@@ -168,7 +193,15 @@ function Draggable({
   return (
     <GestureDetector gesture={pan}>
       <Animated.View
-        style={animatedStyle}
+        style={[
+          {
+            animationName: shake,
+            animationDuration: 700,
+            animationIterationCount: "infinite",
+            animationDelay: Math.random() * 300,
+          },
+          animatedStyle,
+        ]}
         onLayout={(e) => setDimenstions(e.nativeEvent.layout)}
         layout={LinearTransition}
       >
