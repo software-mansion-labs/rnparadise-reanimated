@@ -3,6 +3,7 @@ import { StyleSheet, View, Text, Dimensions, Image } from "react-native";
 import { Gesture, GestureDetector } from "react-native-gesture-handler";
 import Animated, {
   CSSAnimationKeyframes,
+  Easing,
   LinearTransition,
   runOnJS,
   useAnimatedStyle,
@@ -53,6 +54,7 @@ export function ReorderApps() {
   const [items, setItems] = useState(data);
   const activeItemId = useSharedValue<string | null>(null);
   const [placeholderIndex, setPlaceholderIndex] = useState<number | null>(null);
+  const [isReordering, setIsReordering] = useState(false);
 
   const reorderItems = () => {
     if (placeholderIndex === null || activeItemId.value === null) {
@@ -94,6 +96,8 @@ export function ReorderApps() {
               column: index % ITEMS_IN_ROW_COUNT,
               row: Math.floor(index / ITEMS_IN_ROW_COUNT),
             }}
+            isReordering={isReordering}
+            setReordering={setIsReordering}
           >
             <View style={styles.appContainer}>
               <Image source={{ uri: app.image }} style={styles.appIcon} />
@@ -118,13 +122,48 @@ function Draggable({
   reorderItems,
   activeItemId,
   initialPosition,
+  isReordering,
+  setReordering,
 }: any) {
   const [tileDimension, setDimenstions] = useState<any>();
   const currentPosition = useSharedValue<Position | null>(null);
 
   const pressed = useSharedValue(false);
+  const scale = useSharedValue(1);
   const offsetX = useSharedValue<number>(0);
   const offsetY = useSharedValue<number>(0);
+
+  const longPress = Gesture.LongPress()
+    .onBegin(() => {
+      if (isReordering) {
+        return;
+      }
+      scale.value = withTiming(1.1, {
+        duration: 500,
+        easing: Easing.bezier(0.25, 0.1, 0.08, 1.02),
+      });
+    })
+    .onStart(() => {
+      scale.value = withTiming(
+        1,
+        {
+          duration: 150,
+        },
+        (finished) => {
+          if (finished) {
+            runOnJS(setReordering)(true);
+          }
+        },
+      );
+    });
+
+  const tap = Gesture.Tap().onStart(() => {
+    runOnJS(setReordering)(false);
+    scale.value = withTiming(1, {
+      duration: 150,
+      easing: Easing.bezier(0.31, 0.04, 0.03, 1.04),
+    });
+  });
 
   const pan = Gesture.Pan()
     .onBegin(() => {
@@ -178,11 +217,7 @@ function Draggable({
 
     return {
       transform: [
-        {
-          scale: withTiming(pressed.value ? 1.09 : 1, {
-            duration: 150,
-          }),
-        },
+        { scale: scale.value },
         { translateX: offsetX.value + adjustX },
         { translateY: offsetY.value + adjustY },
       ],
@@ -190,11 +225,13 @@ function Draggable({
     };
   });
 
+  const composed = Gesture.Exclusive(longPress, tap, pan);
+
   return (
-    <GestureDetector gesture={pan}>
+    <GestureDetector gesture={composed}>
       <Animated.View
         style={[
-          {
+          isReordering && {
             animationName: shake,
             animationDuration: 700,
             animationIterationCount: "infinite",
