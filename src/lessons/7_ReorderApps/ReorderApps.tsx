@@ -154,7 +154,7 @@ function Draggable({
     return {
       transform: [
         {
-          scale: withTiming(pressed.value ? 1.05 : 1, {
+          scale: withTiming(pressed.value ? 1.09 : 1, {
             duration: 150,
           }),
         },
