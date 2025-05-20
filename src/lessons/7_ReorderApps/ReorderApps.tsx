@@ -29,45 +29,29 @@ export function ReorderApps() {
   const activeItemId = useSharedValue<string | null>(null);
   const [placeholderIndex, setPlaceholderIndex] = useState<number | null>(null);
 
-  const getActiveItem = () => {
-    return data.find((item) => item.id === activeItemId.value);
+  const reorderItems = () => {
+    if (placeholderIndex === null || activeItemId.value === null) {
+      return;
+    }
+    const currentItem = data.find((item) => item.id === activeItemId.value);
+    if (!currentItem) {
+      return;
+    }
+
+    const newItems = [...items];
+
+    const activeIndex = newItems.findIndex(
+      (item) => item.id === activeItemId.value,
+    );
+    newItems.splice(activeIndex, 1);
+    newItems.splice(placeholderIndex, 0, currentItem);
+
+    setItems(newItems);
   };
 
   useEffect(() => {
-    if (placeholderIndex === null) {
-      return;
-    }
-    const currentItem = getActiveItem();
-    const newItems = [...items];
-
-    const activeIndex = newItems.findIndex(
-      (item) => item.id === activeItemId.value,
-    );
-    newItems.splice(activeIndex, 1);
-    newItems.splice(placeholderIndex!, 0, currentItem!);
-
-    setItems(newItems);
+    reorderItems();
   }, [placeholderIndex]);
-
-  const reorderItems = () => {
-    if (placeholderIndex === null) {
-      return;
-    }
-    const currentItem = getActiveItem();
-    const newItems = [...items];
-
-    const activeIndex = newItems.findIndex(
-      (item) => item.id === activeItemId.value,
-    );
-    newItems.splice(activeIndex, 1);
-    newItems.splice(placeholderIndex!, 0, currentItem!);
-
-    setItems(newItems);
-
-    // cleanup
-    activeItemId.value = null;
-    setPlaceholderIndex(null);
-  };
 
   return (
     <View style={[styles.background, { paddingTop: insets.top }]}>
@@ -93,20 +77,22 @@ export function ReorderApps() {
   );
 }
 
+interface Position {
+  column: number;
+  row: number;
+}
+
 function Draggable({
   children,
   id,
   setPlaceholderIndex,
   reorderItems,
   activeItemId,
-  index,
 }: any) {
   const [tileDimension, setDimenstions] = useState<any>();
-  const initialColumn = useSharedValue<number | null>(null);
-  const initialRow = useSharedValue<number | null>(null);
 
-  const column = useSharedValue<number | null>(null);
-  const row = useSharedValue<number | null>(null);
+  const initialPosition = useSharedValue<Position | null>(null);
+  const currentPosition = useSharedValue<Position | null>(null);
 
   const pressed = useSharedValue(false);
   const offsetX = useSharedValue<number>(0);
@@ -118,20 +104,18 @@ function Draggable({
       activeItemId.value = id;
     })
     .onChange((e) => {
-      column.value = Math.floor(e.absoluteX / (tileDimension?.width + GAP));
-      row.value = Math.floor(e.absoluteY / (tileDimension?.height + GAP));
+      const column = Math.floor(e.absoluteX / (tileDimension?.width + GAP));
+      const row = Math.floor(e.absoluteY / (tileDimension?.height + GAP));
 
-      if (initialColumn.value === null) {
-        initialColumn.value = column.value;
+      if (initialPosition.value === null) {
+        initialPosition.value = {
+          column,
+          row,
+        };
       }
-      if (initialRow.value === null) {
-        initialRow.value = row.value;
-      }
-
-      // console.log(initialColumn.value - column.value * tileDimension.width);
 
       const newPlaceholderIndex = Math.min(
-        column.value + row.value * ITEMS_IN_ROW_COUNT,
+        column + row * ITEMS_IN_ROW_COUNT,
         data.length,
       );
 
@@ -139,21 +123,46 @@ function Draggable({
 
       offsetX.value += e.changeX;
       offsetY.value += e.changeY;
+
+      currentPosition.value = {
+        column,
+        row,
+      };
     })
     .onFinalize(() => {
-      pressed.value = false;
-
       runOnJS(reorderItems)();
 
+      // Cleanup
+      pressed.value = false;
       offsetX.value = 0;
       offsetY.value = 0;
-      initialColumn.value = null;
-      initialRow.value = null;
-      column.value = null;
-      row.value = null;
+      activeItemId.value = null;
+      runOnJS(setPlaceholderIndex)(null);
+      initialPosition.value = null;
+      currentPosition.value = null;
     });
 
   const animatedStyle = useAnimatedStyle(() => {
+    const adjustX = withTiming(
+      initialPosition.value && currentPosition.value
+        ? (initialPosition.value.column - currentPosition.value.column) *
+            tileDimension?.width
+        : 0,
+    );
+    const adjustY = withTiming(
+      initialPosition.value && currentPosition.value
+        ? (initialPosition.value.row - currentPosition.value.row) *
+            tileDimension?.height
+        : 0,
+    );
+
+    // console.log(
+    //   currentPosition.value?.row,
+    //   initialPosition.value?.row,
+    //   tileDimension?.height,
+    // );
+    // const adjustX = 0;
+    // const adjustY = 0;
     return {
       transform: [
         {
@@ -161,18 +170,8 @@ function Draggable({
             duration: 150,
           }),
         },
-        {
-          translateX:
-            offsetX.value +
-            withTiming(
-              (initialColumn.value - column.value) * tileDimension?.width,
-            ),
-        },
-        {
-          translateY:
-            offsetY.value +
-            withTiming((initialRow.value - row.value) * tileDimension?.height),
-        },
+        { translateX: offsetX.value + adjustX },
+        { translateY: offsetY.value + adjustY },
       ],
       zIndex: pressed.value ? 1 : 0,
     };
