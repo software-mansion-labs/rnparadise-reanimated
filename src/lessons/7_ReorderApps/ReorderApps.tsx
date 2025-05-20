@@ -42,6 +42,22 @@ export function ReorderApps() {
     return data.find((item) => item.id === activeItemId.value);
   };
 
+  useEffect(() => {
+    if (placeholderIndex === null) {
+      return;
+    }
+    const currentItem = getActiveItem();
+    const newItems = [...items];
+
+    const activeIndex = newItems.findIndex(
+      (item) => item.id === activeItemId.value,
+    );
+    newItems.splice(activeIndex, 1);
+    newItems.splice(placeholderIndex!, 0, currentItem!);
+
+    setItems(newItems);
+  }, [placeholderIndex]);
+
   const reorderItems = () => {
     if (placeholderIndex === null) {
       return;
@@ -144,7 +160,9 @@ function Draggable({
   }));
 
   return (
-    <View>
+    <View
+      style={{ width: tileDimension?.width, height: tileDimension?.height }}
+    >
       <GestureDetector gesture={pan}>
         <Animated.View
           style={animatedStyle}
