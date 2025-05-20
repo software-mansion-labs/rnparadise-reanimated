@@ -102,7 +102,8 @@ function Draggable({
   index,
 }: any) {
   const [tileDimension, setDimenstions] = useState<any>();
-  const initialPosition = useSharedValue<any>({ column: null, row: null });
+  const initialColumn = useSharedValue<number | null>(null);
+  const initialRow = useSharedValue<number | null>(null);
 
   const column = useSharedValue<number | null>(null);
   const row = useSharedValue<number | null>(null);
@@ -120,12 +121,14 @@ function Draggable({
       column.value = Math.floor(e.absoluteX / (tileDimension?.width + GAP));
       row.value = Math.floor(e.absoluteY / (tileDimension?.height + GAP));
 
-      if (initialPosition.value.column === null) {
-        initialPosition.value = {
-          row,
-          column,
-        };
+      if (initialColumn.value === null) {
+        initialColumn.value = column.value;
       }
+      if (initialRow.value === null) {
+        initialRow.value = row.value;
+      }
+
+      // console.log(initialColumn.value - column.value * tileDimension.width);
 
       const newPlaceholderIndex = Math.min(
         column.value + row.value * ITEMS_IN_ROW_COUNT,
@@ -144,33 +147,36 @@ function Draggable({
 
       offsetX.value = 0;
       offsetY.value = 0;
-      initialPosition.value = { column: null, row: null };
+      initialColumn.value = null;
+      initialRow.value = null;
       column.value = null;
       row.value = null;
     });
 
-  const animatedStyle = useAnimatedStyle(() => ({
-    transform: [
-      {
-        scale: withTiming(pressed.value ? 1.05 : 1, {
-          duration: 150,
-        }),
-      },
-      {
-        translateX:
-          offsetX.value -
-          initialPosition.value.column -
-          column.value * tileDimension?.width,
-      },
-      {
-        translateY:
-          offsetY.value -
-          initialPosition.value.row -
-          row.value * tileDimension?.height,
-      },
-    ],
-    zIndex: pressed.value ? 1 : 0,
-  }));
+  const animatedStyle = useAnimatedStyle(() => {
+    return {
+      transform: [
+        {
+          scale: withTiming(pressed.value ? 1.05 : 1, {
+            duration: 150,
+          }),
+        },
+        {
+          translateX:
+            offsetX.value +
+            withTiming(
+              (initialColumn.value - column.value) * tileDimension?.width,
+            ),
+        },
+        {
+          translateY:
+            offsetY.value +
+            withTiming((initialRow.value - row.value) * tileDimension?.height),
+        },
+      ],
+      zIndex: pressed.value ? 1 : 0,
+    };
+  });
 
   return (
     <GestureDetector gesture={pan}>
